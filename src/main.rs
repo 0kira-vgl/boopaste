@@ -25,6 +25,9 @@ enum Commands {
     Init,
     /// Remove o LaunchAgent e todos os arquivos instalados
     Uninstall,
+    /// Roda o daemon em primeiro plano (uso interno do LaunchAgent)
+    #[command(hide = true)]
+    Run,
 }
 
 fn main() {
@@ -36,5 +39,6 @@ fn main() {
         Commands::Status => launchagent::status(),
         Commands::Init => launchagent::install(),
         Commands::Uninstall => launchagent::uninstall(),
+        Commands::Run => daemon::run(),
     }
 }
