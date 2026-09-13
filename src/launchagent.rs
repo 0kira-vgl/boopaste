@@ -5,6 +5,7 @@
 
 use std::env;
 use std::fs;
+use std::os::unix::fs::symlink;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -30,6 +31,10 @@ fn installed_binary_path() -> PathBuf {
 
 fn logs_dir() -> PathBuf {
     home_dir().join("Library/Logs")
+}
+
+fn symlink_path() -> PathBuf {
+    home_dir().join(".local/bin/boopaste")
 }
 
 fn plist_contents(binary_path: &std::path::Path) -> String {
@@ -102,7 +107,7 @@ pub fn install() {
     let current_exe = env::current_exe().expect("não foi possível localizar o próprio binário");
 
     fs::create_dir_all(install_dir()).expect("falha ao criar diretório de instalação");
-    fs::copy(&current_exe, installed_binary_path()).expect("falha ao copiar o binário");
+    install_binary_atomically(&current_exe);
 
     fs::create_dir_all(logs_dir()).expect("falha ao criar diretório de logs");
 
@@ -115,6 +120,8 @@ pub fn install() {
     fs::write(plist_path(), plist_contents(&installed_binary_path()))
         .expect("falha ao escrever o plist");
 
+    link_binary_for_cli_use();
+
     println!("boopaste: instalado (rode `boopaste on` para ligar)");
 }
 
@@ -125,8 +132,54 @@ pub fn uninstall() {
         run_launchctl(&["unload", "-w", &plist.to_string_lossy()]);
         let _ = fs::remove_file(&plist);
     }
+    unlink_binary_for_cli_use();
     let _ = fs::remove_dir_all(install_dir());
     println!("boopaste: desinstalado");
+}
+
+/// Copia o binário pro destino via arquivo temporário + `rename` atômico.
+/// Um `fs::copy` direto sobrescreveria o mesmo inode do binário instalado —
+/// se uma instância antiga ainda estiver rodando (mapeada em memória a
+/// partir desse arquivo), a truncagem no meio da cópia corrompe a
+/// assinatura ad-hoc e o kernel mata o processo (`code signature error`).
+/// O `rename` troca o inode de uma vez só, sem afetar quem já tem o
+/// arquivo antigo aberto.
+fn install_binary_atomically(source: &std::path::Path) {
+    let dest = installed_binary_path();
+    let tmp_dest = install_dir().join("boopaste.tmp");
+    fs::copy(source, &tmp_dest).expect("falha ao copiar o binário");
+    fs::rename(&tmp_dest, &dest).expect("falha ao mover o binário pro destino final");
+}
+
+/// Cria/atualiza um symlink em `~/.local/bin/boopaste` apontando pro binário
+/// instalado, para que o comando `boopaste` funcione direto no shell — sem
+/// isso, `init` deixaria o binário instalado mas inacessível fora do PATH
+/// do LaunchAgent.
+fn link_binary_for_cli_use() {
+    let link = symlink_path();
+    let Some(bin_dir) = link.parent() else {
+        return;
+    };
+    if fs::create_dir_all(bin_dir).is_err() {
+        return;
+    }
+    let _ = fs::remove_file(&link);
+    if symlink(installed_binary_path(), &link).is_err() {
+        eprintln!(
+            "aviso: não foi possível criar o symlink em {} — adicione {} ao PATH manualmente",
+            link.display(),
+            install_dir().display()
+        );
+    }
+}
+
+/// Remove o symlink criado por `link_binary_for_cli_use`, só se ele ainda
+/// apontar pro binário instalado (não mexe em algo que o usuário criou).
+fn unlink_binary_for_cli_use() {
+    let link = symlink_path();
+    if fs::read_link(&link).ok() == Some(installed_binary_path()) {
+        let _ = fs::remove_file(&link);
+    }
 }
 
 fn run_launchctl(args: &[&str]) {
