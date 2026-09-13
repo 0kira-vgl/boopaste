@@ -4,9 +4,13 @@ import Link from "next/link";
 import { GithubIcon } from "@/components/icons";
 import { PixelBar } from "@/components/pixel-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LocaleToggle } from "@/components/locale-toggle";
+import { useLocale } from "@/components/locale-provider";
 import { SITE } from "@/lib/site";
 
 export function FloatingNav() {
+  const { t } = useLocale();
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-foreground/10 bg-background/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
@@ -15,10 +19,13 @@ export function FloatingNav() {
         </Link>
         <div className="flex items-center gap-6 font-mono text-xs text-foreground/70">
           <Link href="#how-it-works" className="hidden hover:text-foreground sm:inline">
-            how it works
+            {t.nav.howItWorks}
           </Link>
           <Link href="#terminals" className="hidden hover:text-foreground sm:inline">
-            terminals
+            {t.nav.terminals}
+          </Link>
+          <Link href="#install" className="hidden hover:text-foreground sm:inline">
+            {t.nav.install}
           </Link>
           <a
             href={SITE.githubUrl}
@@ -27,8 +34,9 @@ export function FloatingNav() {
             className="flex items-center gap-1.5 hover:text-foreground"
           >
             <GithubIcon size={14} />
-            github
+            {t.nav.github}
           </a>
+          <LocaleToggle />
           <ThemeToggle />
         </div>
       </nav>

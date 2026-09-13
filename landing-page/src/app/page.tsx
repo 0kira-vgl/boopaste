@@ -5,6 +5,7 @@ import { Hero } from "@/components/sections/hero";
 import { Problem } from "@/components/sections/problem";
 import { HowItWorks } from "@/components/sections/how-it-works";
 import { Terminals } from "@/components/sections/terminals";
+import { Install } from "@/components/sections/install";
 import { OpenSource } from "@/components/sections/open-source";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
         <Problem />
         <HowItWorks />
         <Terminals />
+        <Install />
         <OpenSource />
       </main>
       <SiteFooter />

@@ -8,6 +8,7 @@
 // segue visível — basta soltar o arquivo no caminho certo pra ativar.
 
 import { useEffect, useRef, useState } from "react";
+import { AsciiCanvas } from "@/components/ascii-canvas";
 
 const VIDEO_SRC = "/ascii-bg.mp4";
 
@@ -46,7 +47,10 @@ export function ScrollVideoBackground() {
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden bg-background">
-      <AsciiFallback />
+      {/* Renderizador ASCII nativo em tempo real (Canvas 60fps com Donut 3D + Chuva Digital) */}
+      <AsciiCanvas />
+
+      {/* Se o arquivo de vídeo gerado por IA existir em public/ascii-bg.mp4, ele se sobrepõe com blend */}
       <video
         ref={videoRef}
         className="h-full w-full object-cover opacity-25 mix-blend-screen dark:opacity-35"
@@ -57,22 +61,6 @@ export function ScrollVideoBackground() {
         onCanPlay={() => setVideoReady(true)}
         onError={() => setVideoReady(false)}
         style={{ display: videoReady ? "block" : "none" }}
-      />
-    </div>
-  );
-}
-
-/** Placeholder até o vídeo do Gemini existir: grade de "caracteres" + scanline sutil. */
-function AsciiFallback() {
-  return (
-    <div className="pointer-events-none absolute inset-0 opacity-[0.15]">
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, currentColor 0px, currentColor 1px, transparent 1px, transparent 22px), repeating-linear-gradient(90deg, currentColor 0px, currentColor 1px, transparent 1px, transparent 12px)",
-          color: "var(--foreground)",
-        }}
       />
     </div>
   );

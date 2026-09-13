@@ -5,6 +5,7 @@
 // exatamente o que src/daemon.rs + src/eventtap.rs fazem no dia a dia.
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/components/locale-provider";
 
 const STEPS = [
   { text: "", delay: 0 },
@@ -34,6 +35,7 @@ function useTypingLoop(active: boolean) {
 }
 
 export function GhosttyDemo() {
+  const { t } = useLocale();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -54,7 +56,7 @@ export function GhosttyDemo() {
       ref={ref}
       className="flex flex-col border border-foreground/20 bg-background"
     >
-      <TerminalChrome title="ghostty" status="online" />
+      <TerminalChrome title="ghostty" status="online" statusLabel={t.terminals.ghostty.status} />
       <div className="h-40 whitespace-pre-wrap p-4 font-mono text-xs text-foreground/90">
         <span className="text-foreground/50">$ </span>
         {output}
@@ -65,18 +67,28 @@ export function GhosttyDemo() {
 }
 
 export function NativeTerminalCard() {
+  const { t } = useLocale();
+
   return (
     <div className="flex flex-col border border-foreground/20 bg-background opacity-60">
-      <TerminalChrome title="terminal" status="soon" />
+      <TerminalChrome title="terminal" status="soon" statusLabel={t.terminals.native.status} />
       <div className="flex h-40 flex-col items-start gap-2 p-4 font-mono text-xs text-foreground/60">
-        <span>$ integração em desenvolvimento</span>
-        <span className="text-foreground/40">próximo na fila, logo depois do Ghostty</span>
+        <span>$ {t.terminals.native.line1}</span>
+        <span className="text-foreground/40">{t.terminals.native.line2}</span>
       </div>
     </div>
   );
 }
 
-function TerminalChrome({ title, status }: { title: string; status: "online" | "soon" }) {
+function TerminalChrome({
+  title,
+  status,
+  statusLabel,
+}: {
+  title: string;
+  status: "online" | "soon";
+  statusLabel: string;
+}) {
   return (
     <div className="flex items-center justify-between border-b border-foreground/20 px-3 py-2">
       <div className="flex gap-1.5">
@@ -93,7 +105,7 @@ function TerminalChrome({ title, status }: { title: string; status: "online" | "
           status === "online" ? "text-foreground" : "text-foreground/40"
         )}
       >
-        {status === "online" ? "● live" : "○ soon"}
+        {status === "online" ? "●" : "○"} {statusLabel}
       </span>
     </div>
   );
