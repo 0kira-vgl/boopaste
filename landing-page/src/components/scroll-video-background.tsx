@@ -10,11 +10,19 @@
 import { useEffect, useRef, useState } from "react";
 import { AsciiCanvas } from "@/components/ascii-canvas";
 
-const VIDEO_SRC = "/ascii-bg.mp4";
+const DEFAULT_VIDEO_SRC = "/ascii-bg.mp4";
 
 export function ScrollVideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(DEFAULT_VIDEO_SRC);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("boopaste-active-bg");
+    if (saved) {
+      setVideoSrc(saved);
+    }
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -50,11 +58,11 @@ export function ScrollVideoBackground() {
       {/* Renderizador ASCII nativo em tempo real (Canvas 60fps com Donut 3D + Chuva Digital) */}
       <AsciiCanvas />
 
-      {/* Se o arquivo de vídeo gerado por IA existir em public/ascii-bg.mp4, ele se sobrepõe com blend */}
+      {/* Se o arquivo de vídeo gerado por IA existir ou for selecionado no preview, ele roda com blend */}
       <video
         ref={videoRef}
-        className="h-full w-full object-cover opacity-25 mix-blend-screen dark:opacity-35"
-        src={VIDEO_SRC}
+        className="h-full w-full object-cover opacity-35 mix-blend-screen dark:opacity-45"
+        src={videoSrc}
         muted
         playsInline
         preload="auto"

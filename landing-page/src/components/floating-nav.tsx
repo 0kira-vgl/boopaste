@@ -36,6 +36,12 @@ export function FloatingNav() {
             <GithubIcon size={14} />
             {t.nav.github}
           </a>
+          <Link
+            href="/preview"
+            className="rounded border border-[#00FF66]/40 bg-[#00FF66]/10 px-2 py-0.5 text-[#00FF66] hover:bg-[#00FF66]/20 transition-colors"
+          >
+            preview
+          </Link>
           <LocaleToggle />
           <ThemeToggle />
         </div>
