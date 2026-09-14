@@ -85,9 +85,9 @@ const GRAIN_SVG =
       {/* 2. Cursor Glow / Nebulosa Neon pulsante (inspirado no Yucatan) */}
       <div
         ref={glowRef}
-        className="absolute -left-64 -top-64 h-[36rem] w-[36rem] rounded-full opacity-40 blur-[110px] transition-opacity duration-1000 dark:opacity-50"
+        className="absolute -left-40 -top-40 h-80 w-80 rounded-full opacity-40 blur-[100px] transition-opacity duration-1000 dark:opacity-50"
         style={{
-          background: "radial-gradient(circle, rgba(0, 255, 102, 0.32) 0%, rgba(0, 240, 255, 0.16) 45%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(0, 255, 102, 0.28) 0%, rgba(0, 240, 255, 0.14) 45%, transparent 70%)",
           willChange: "transform",
         }}
       />

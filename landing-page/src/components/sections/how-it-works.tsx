@@ -2,6 +2,7 @@
 
 import { SectionLabel } from "@/components/sections/problem";
 import { useLocale } from "@/components/locale-provider";
+import { DistortText } from "@/components/distort-text";
 
 export function HowItWorks() {
   const { t } = useLocale();
@@ -14,13 +15,15 @@ export function HowItWorks() {
           <li key={step.title} className="flex gap-4">
             <span className="font-mono text-sm text-foreground/30">{i + 1}</span>
             <div className="flex flex-col gap-1">
-              <h3 className="font-mono text-sm font-semibold text-foreground">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-foreground/60">{step.body}</p>
+              <h3 className="font-mono text-sm font-semibold text-foreground">
+                <DistortText>{step.title}</DistortText>
+              </h3>
+              <DistortText className="text-sm leading-relaxed text-foreground/60">{step.body}</DistortText>
             </div>
           </li>
         ))}
       </ol>
-      <p className="text-sm leading-relaxed text-foreground/50">{t.howItWorks.closing}</p>
+      <DistortText className="text-sm leading-relaxed text-foreground/50">{t.howItWorks.closing}</DistortText>
     </section>
   );
 }

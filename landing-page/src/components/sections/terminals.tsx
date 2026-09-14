@@ -3,6 +3,7 @@
 import { SectionLabel } from "@/components/sections/problem";
 import { GhosttyDemo, NativeTerminalCard } from "@/components/terminal-demo";
 import { useLocale } from "@/components/locale-provider";
+import { DistortText } from "@/components/distort-text";
 
 export function Terminals() {
   const { t } = useLocale();
@@ -15,8 +16,8 @@ export function Terminals() {
         <NativeTerminalCard />
       </div>
       <p className="text-sm leading-relaxed text-foreground/50">
-        {t.terminals.closingPre} <code className="font-mono text-xs">frontmost.rs</code>{" "}
-        {t.terminals.closingPost}
+        <DistortText>{t.terminals.closingPre}</DistortText> <code className="font-mono text-xs">frontmost.rs</code>{" "}
+        <DistortText>{t.terminals.closingPost}</DistortText>
       </p>
     </section>
   );
