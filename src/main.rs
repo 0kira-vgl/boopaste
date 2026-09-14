@@ -23,6 +23,8 @@ enum Commands {
     Status,
     /// Instala o LaunchAgent (não liga automaticamente)
     Init,
+    /// Abre a tela de Monitoramento de Entrada, caso o alerta automático não apareça
+    Permissions,
     /// Remove o LaunchAgent e todos os arquivos instalados
     Uninstall,
     /// Roda o daemon em primeiro plano (uso interno do LaunchAgent)
@@ -38,6 +40,7 @@ fn main() {
         Commands::Off => launchagent::turn_off(),
         Commands::Status => launchagent::status(),
         Commands::Init => launchagent::install(),
+        Commands::Permissions => launchagent::open_permissions_fallback(),
         Commands::Uninstall => launchagent::uninstall(),
         Commands::Run => daemon::run(),
     }

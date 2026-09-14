@@ -78,6 +78,9 @@ pub fn turn_on() {
     }
     run_launchctl(&["load", "-w", &plist.to_string_lossy()]);
     println!("boopaste: ligado (persiste entre reinicializações até você desligar)");
+    println!(
+        "se essa for a primeira vez, deve aparecer um alerta pedindo Monitoramento de Entrada — clique em Permitir. Se não aparecer nada e o Cmd+V não colar o caminho da imagem, rode `boopaste permissions`."
+    );
 }
 
 /// Desliga o boopaste: descarrega o LaunchAgent (persiste até `on`).
@@ -149,6 +152,23 @@ fn install_binary_atomically(source: &std::path::Path) {
     let tmp_dest = install_dir().join("boopaste.tmp");
     fs::copy(source, &tmp_dest).expect("falha ao copiar o binário");
     fs::rename(&tmp_dest, &dest).expect("falha ao mover o binário pro destino final");
+    sign_with_stable_identifier(&dest);
+}
+
+/// Reassina o binário com um identifier fixo (`com.matheus.boopaste`).
+/// Sem isso, cada `cargo build` embute um hash diferente no identifier
+/// ad-hoc padrão do rustc — e como o TCC (permissão de Input Monitoring)
+/// reconhece o cliente por esse identifier, toda reinstalação de um binário
+/// recompilado parece "um app novo" pro macOS, derrubando a permissão já
+/// concedida mesmo com o caminho inalterado.
+fn sign_with_stable_identifier(binary: &std::path::Path) {
+    let status = Command::new("codesign")
+        .args(["--sign", "-", "--identifier", LABEL, "--force"])
+        .arg(binary)
+        .status();
+    if !status.map(|s| s.success()).unwrap_or(false) {
+        eprintln!("aviso: falha ao assinar o binário com identifier estável — a permissão de Input Monitoring pode precisar ser concedida de novo a cada build");
+    }
 }
 
 /// Cria/atualiza um symlink em `~/.local/bin/boopaste` apontando pro binário
@@ -180,6 +200,23 @@ fn unlink_binary_for_cli_use() {
     if fs::read_link(&link).ok() == Some(installed_binary_path()) {
         let _ = fs::remove_file(&link);
     }
+}
+
+/// Plano B: `boopaste on` já pede a permissão via alerta nativo
+/// (`IOHIDRequestAccess`), mas isso só funciona uma vez — se o usuário
+/// clicar em "Não Permitir" o macOS não pergunta de novo, e a única saída
+/// vira ir manualmente na tela de Monitoramento de Entrada. Essa função
+/// abre essa tela e revela o binário instalado no Finder, já selecionado,
+/// pra pelo menos poupar a navegação até
+/// `~/Library/Application Support/boopaste/` via Cmd+Shift+G.
+pub fn open_permissions_fallback() {
+    let _ = Command::new("open")
+        .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")
+        .status();
+    let _ = Command::new("open")
+        .arg("-R")
+        .arg(installed_binary_path())
+        .status();
 }
 
 fn run_launchctl(args: &[&str]) {
