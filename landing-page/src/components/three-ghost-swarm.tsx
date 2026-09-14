@@ -444,7 +444,7 @@ export function ThreeGhostSwarm() {
     // 7. LOOP DE ANIMAÇÃO COM ENTRADA SUAVE (FADE-IN CONTROLADO)
     // -------------------------------------------------------------
     let animId = 0;
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
     let entranceAlpha = 0; // Fade-in suave de entrada para eliminar qualquer glitch
 
     function animate() {

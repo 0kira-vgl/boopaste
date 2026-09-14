@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GithubIcon } from "@/components/icons";
 import { useLocale } from "@/components/locale-provider";
 import { SITE } from "@/lib/site";
@@ -13,15 +14,20 @@ export function SiteFooter() {
         <span>
           {SITE.name} — {t.footer.tagline}
         </span>
-        <a
-          href={SITE.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 hover:text-foreground"
-        >
-          <GithubIcon size={14} />
-          {SITE.githubUrl.replace("https://", "")}
-        </a>
+        <div className="flex items-center gap-6">
+          <Link href="/docs" className="hover:text-foreground transition-colors">
+            {t.nav.docs}
+          </Link>
+          <a
+            href={SITE.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+          >
+            <GithubIcon size={14} />
+            {SITE.githubUrl.replace("https://", "")}
+          </a>
+        </div>
       </div>
     </footer>
   );

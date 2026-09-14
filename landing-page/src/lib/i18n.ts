@@ -1,7 +1,16 @@
+import { docsDictionary } from "@/lib/docs-content";
+
 export type Locale = "en" | "pt";
 
 const en = {
-  nav: { howItWorks: "how it works", terminals: "terminals", install: "install", github: "github" },
+  nav: {
+    howItWorks: "how it works",
+    terminals: "terminals",
+    install: "install",
+    docs: "docs",
+    github: "github",
+    home: "home",
+  },
   hero: {
     tagline: "Paste images as file paths — only in your terminal.",
     description:
@@ -61,10 +70,18 @@ const en = {
   footer: {
     tagline: "MIT licensed, open source.",
   },
+  docs: docsDictionary.en,
 };
 
 const pt: typeof en = {
-  nav: { howItWorks: "como funciona", terminals: "terminais", install: "instalar", github: "github" },
+  nav: {
+    howItWorks: "como funciona",
+    terminals: "terminais",
+    install: "instalar",
+    docs: "docs",
+    github: "github",
+    home: "início",
+  },
   hero: {
     tagline: "Cole imagens como caminho de arquivo — só no seu terminal.",
     description:
@@ -124,6 +141,7 @@ const pt: typeof en = {
   footer: {
     tagline: "Licenciado em MIT, open source.",
   },
+  docs: docsDictionary.pt,
 };
 
 export const dictionaries: Record<Locale, typeof en> = { en, pt };
