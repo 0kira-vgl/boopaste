@@ -15,6 +15,12 @@ const LSREGISTER: &str = "/System/Library/Frameworks/CoreServices.framework/Fram
 
 const TCC_SERVICES: &[&str] = &["ListenEvent", "Accessibility", "PostEvent"];
 
+/// Ícone do app (o fantasminha verde usado na landing page), embutido no
+/// binário em tempo de compilação — assim o `.app` sai com ícone próprio
+/// nas telas de permissão do macOS (Acessibilidade, Monitoramento de
+/// Entrada), em vez do ícone genérico de executável.
+const APP_ICON: &[u8] = include_bytes!("../assets/AppIcon.icns");
+
 fn home_dir() -> PathBuf {
     PathBuf::from(env::var("HOME").expect("variável de ambiente HOME não definida"))
 }
@@ -62,6 +68,8 @@ fn info_plist_contents() -> String {
 <dict>
     <key>CFBundleIdentifier</key>
     <string>{LABEL}</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleExecutable</key>
     <string>boopaste</string>
     <key>CFBundleName</key>
@@ -158,6 +166,7 @@ pub fn install() {
     fs::create_dir_all(bundle_macos_dir()).expect("falha ao criar o bundle do app");
     fs::write(bundle_path().join("Contents/Info.plist"), info_plist_contents())
         .expect("falha ao escrever o Info.plist");
+    install_icon();
     install_binary_atomically(&current_exe);
     register_with_launch_services();
 
@@ -201,6 +210,12 @@ pub fn uninstall() {
 /// assinatura ad-hoc e o kernel mata o processo (`code signature error`).
 /// O `rename` troca o inode de uma vez só, sem afetar quem já tem o
 /// arquivo antigo aberto.
+fn install_icon() {
+    let resources_dir = bundle_path().join("Contents/Resources");
+    fs::create_dir_all(&resources_dir).expect("falha ao criar Contents/Resources");
+    fs::write(resources_dir.join("AppIcon.icns"), APP_ICON).expect("falha ao escrever o ícone");
+}
+
 fn install_binary_atomically(source: &std::path::Path) {
     let dest = installed_binary_path();
     let tmp_dest = bundle_macos_dir().join("boopaste.tmp");
