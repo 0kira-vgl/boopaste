@@ -13,7 +13,7 @@ export default function Home() {
     <div className="relative flex flex-1 flex-col">
       <ScrollVideoBackground />
       <FloatingNav />
-      <main className="flex flex-1 flex-col">
+      <main className="relative z-10 flex flex-1 flex-col">
         <Hero />
         <Problem />
         <HowItWorks />

@@ -24,3 +24,18 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+@keyframes star-twinkle {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.35);
+  }
+}
+
+.animate-star-twinkle {
+  animation: star-twinkle 2s infinite ease-in-out;
+}

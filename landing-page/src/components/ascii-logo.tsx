@@ -1,53 +1,21 @@
-"use client";
-
-// Placeholder da logo em ASCII/pixel art. Assim que
-// public/logo-ascii.png (gerado a partir do prompt em gemini-assets/PROMPTS.md)
-// existir, troque o bloco <pre> abaixo por <Image src="/logo-ascii.png" .../>.
-
-import Image from "next/image";
-import { useEffect, useState } from "react";
-
-const BANNER = String.raw`
- _                                _
-| |                              | |
-| |__   ___   ___  _ __  __ _ ___| |_ ___
-| '_ \ / _ \ / _ \| '_ \/ _\` / __| __/ _ \
-| |_) | (_) | (_) | |_) | (_| \__ \ ||  __/
-|_.__/ \___/ \___/| .__/ \__,_|___/\__\___|
-                   | |
-                   |_|
-`.trim();
+import { BoopasteSymbol } from "@/components/brand/boopaste-brand";
 
 export function AsciiLogo({ className }: { className?: string }) {
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("boopaste-active-logo");
-    if (saved) setCustomLogo(saved);
-  }, []);
-
-  if (customLogo) {
-    return (
-      <div className={`relative mx-auto flex flex-col items-center gap-3 ${className ?? ""}`}>
-        <div className="relative h-44 w-44 sm:h-52 sm:w-52 rounded-xl border border-foreground/20 bg-black/60 p-3 shadow-2xl backdrop-blur-sm transition-transform hover:scale-105">
-          <Image
-            src={customLogo}
-            alt="boopaste logo"
-            fill
-            className="object-contain p-2"
-            priority
-          />
+  return (
+    <div className={`relative mx-auto flex flex-col items-center gap-4 ${className ?? ""}`}>
+      {/* Símbolo Oficial Boo Spark (✦) com glow suave */}
+      <div className="group relative flex items-center justify-center p-3 transition-transform duration-300 hover:scale-110">
+        <div className="absolute -inset-2 rounded-2xl bg-[#00FF66]/15 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
+        <div className="relative">
+          <BoopasteSymbol size={72} />
         </div>
       </div>
-    );
-  }
 
-  return (
-    <pre
-      className={`select-none whitespace-pre font-mono text-[0.4rem] leading-[0.5rem] text-foreground sm:text-[0.55rem] sm:leading-[0.7rem] md:text-[0.7rem] md:leading-[0.85rem] ${className ?? ""}`}
-      aria-label="boopaste"
-    >
-      {BANNER}
-    </pre>
+      {/* Wordmark limpo e minimalista */}
+      <div className="font-mono text-2xl font-bold tracking-tight text-foreground flex items-center gap-1.5">
+        <span>boopaste</span>
+        <span className="h-5 w-2 bg-[#00FF66] animate-pulse inline-block" />
+      </div>
+    </div>
   );
 }
