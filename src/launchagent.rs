@@ -11,6 +11,10 @@ use std::process::Command;
 
 const LABEL: &str = "com.matheus.boopaste";
 
+const LSREGISTER: &str = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
+
+const TCC_SERVICES: &[&str] = &["ListenEvent", "Accessibility", "PostEvent"];
+
 fn home_dir() -> PathBuf {
     PathBuf::from(env::var("HOME").expect("variável de ambiente HOME não definida"))
 }
@@ -25,8 +29,21 @@ fn install_dir() -> PathBuf {
     home_dir().join("Library/Application Support/boopaste")
 }
 
+/// O binário fica dentro de um `.app` mínimo (não só um executável solto)
+/// para que o macOS o registre no Launch Services com um `CFBundleIdentifier`
+/// de verdade. Sem isso, `tccutil reset` (usado no `uninstall` pra apagar as
+/// permissões de Acessibilidade/Monitoramento de Entrada) não consegue achar
+/// o app — ele só aceita bundle identifiers registrados, não caminhos soltos.
+fn bundle_path() -> PathBuf {
+    install_dir().join("Boopaste.app")
+}
+
+fn bundle_macos_dir() -> PathBuf {
+    bundle_path().join("Contents/MacOS")
+}
+
 fn installed_binary_path() -> PathBuf {
-    install_dir().join("boopaste")
+    bundle_macos_dir().join("boopaste")
 }
 
 fn logs_dir() -> PathBuf {
@@ -35,6 +52,34 @@ fn logs_dir() -> PathBuf {
 
 fn symlink_path() -> PathBuf {
     home_dir().join(".local/bin/boopaste")
+}
+
+fn info_plist_contents() -> String {
+    format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>{LABEL}</string>
+    <key>CFBundleExecutable</key>
+    <string>boopaste</string>
+    <key>CFBundleName</key>
+    <string>boopaste</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>LSBackgroundOnly</key>
+    <true/>
+</dict>
+</plist>
+"#
+    )
 }
 
 fn plist_contents(binary_path: &std::path::Path) -> String {
@@ -105,12 +150,16 @@ pub fn status() {
     }
 }
 
-/// Instala o binário e o LaunchAgent (não liga automaticamente).
+/// Instala o binário (dentro de um `.app` mínimo) e o LaunchAgent (não liga
+/// automaticamente).
 pub fn install() {
     let current_exe = env::current_exe().expect("não foi possível localizar o próprio binário");
 
-    fs::create_dir_all(install_dir()).expect("falha ao criar diretório de instalação");
+    fs::create_dir_all(bundle_macos_dir()).expect("falha ao criar o bundle do app");
+    fs::write(bundle_path().join("Contents/Info.plist"), info_plist_contents())
+        .expect("falha ao escrever o Info.plist");
     install_binary_atomically(&current_exe);
+    register_with_launch_services();
 
     fs::create_dir_all(logs_dir()).expect("falha ao criar diretório de logs");
 
@@ -128,16 +177,21 @@ pub fn install() {
     println!("boopaste: instalado (rode `boopaste on` para ligar)");
 }
 
-/// Remove o LaunchAgent e os arquivos instalados.
+/// Remove o LaunchAgent, as permissões concedidas no TCC e todos os arquivos
+/// instalados — não deixa vestígio nenhum pra trás.
 pub fn uninstall() {
     let plist = plist_path();
     if plist.exists() {
         run_launchctl(&["unload", "-w", &plist.to_string_lossy()]);
         let _ = fs::remove_file(&plist);
     }
+
+    reset_tcc_permissions();
+    unregister_from_launch_services();
     unlink_binary_for_cli_use();
     let _ = fs::remove_dir_all(install_dir());
-    println!("boopaste: desinstalado");
+
+    println!("boopaste: desinstalado (LaunchAgent, binário e permissões de Acessibilidade/Monitoramento de Entrada removidos)");
 }
 
 /// Copia o binário pro destino via arquivo temporário + `rename` atômico.
@@ -149,25 +203,61 @@ pub fn uninstall() {
 /// arquivo antigo aberto.
 fn install_binary_atomically(source: &std::path::Path) {
     let dest = installed_binary_path();
-    let tmp_dest = install_dir().join("boopaste.tmp");
+    let tmp_dest = bundle_macos_dir().join("boopaste.tmp");
     fs::copy(source, &tmp_dest).expect("falha ao copiar o binário");
     fs::rename(&tmp_dest, &dest).expect("falha ao mover o binário pro destino final");
-    sign_with_stable_identifier(&dest);
+    sign_bundle();
 }
 
-/// Reassina o binário com um identifier fixo (`com.matheus.boopaste`).
-/// Sem isso, cada `cargo build` embute um hash diferente no identifier
-/// ad-hoc padrão do rustc — e como o TCC (permissão de Input Monitoring)
-/// reconhece o cliente por esse identifier, toda reinstalação de um binário
-/// recompilado parece "um app novo" pro macOS, derrubando a permissão já
-/// concedida mesmo com o caminho inalterado.
-fn sign_with_stable_identifier(binary: &std::path::Path) {
+/// Assina o `.app` inteiro (não só o executável) com identifier fixo
+/// (`com.matheus.boopaste`), igual ao `CFBundleIdentifier` do Info.plist —
+/// é o que faz o TCC reconhecer o app de forma consistente entre reinstalações.
+/// Importante: como a assinatura é ad-hoc (sem certificado pago da Apple), o
+/// hash embutido muda a cada recompilação do binário — então, mesmo com
+/// identifier fixo, o macOS ainda vai pedir a permissão de novo depois de
+/// qualquer rebuild. Isso é uma limitação de binários não assinados por um
+/// Developer ID, não algo resolvível só em software.
+fn sign_bundle() {
     let status = Command::new("codesign")
         .args(["--sign", "-", "--identifier", LABEL, "--force"])
-        .arg(binary)
+        .arg(bundle_path())
         .status();
     if !status.map(|s| s.success()).unwrap_or(false) {
-        eprintln!("aviso: falha ao assinar o binário com identifier estável — a permissão de Input Monitoring pode precisar ser concedida de novo a cada build");
+        eprintln!("aviso: falha ao assinar o app com identifier estável — a permissão de Input Monitoring pode precisar ser concedida de novo a cada build");
+    }
+}
+
+/// Registra o `.app` no Launch Services. Sem isso, o bundle pode não
+/// aparecer pro `tccutil` (que só reconhece bundle identifiers registrados),
+/// já que instalar em `~/Library/Application Support` não é um local
+/// indexado automaticamente como `/Applications`.
+fn register_with_launch_services() {
+    let _ = Command::new(LSREGISTER)
+        .args(["-f"])
+        .arg(bundle_path())
+        .status();
+}
+
+/// Desfaz o registro no Launch Services no uninstall, pra não deixar uma
+/// entrada órfã apontando pra um bundle que não existe mais.
+fn unregister_from_launch_services() {
+    let _ = Command::new(LSREGISTER)
+        .args(["-u"])
+        .arg(bundle_path())
+        .status();
+}
+
+/// Apaga do TCC as decisões de permissão (Acessibilidade, Monitoramento de
+/// Entrada, Postar Eventos) dadas ao boopaste, usando o `tccutil` oficial da
+/// Apple — só funciona porque agora o boopaste tem um bundle identifier
+/// registrado (veja `register_with_launch_services`); em um binário solto
+/// não empacotado, `tccutil` não consegue mirar só nele (só reseta pra todo
+/// mundo de uma vez, ou falha).
+fn reset_tcc_permissions() {
+    for service in TCC_SERVICES {
+        let _ = Command::new("tccutil")
+            .args(["reset", service, LABEL])
+            .status();
     }
 }
 
@@ -188,7 +278,7 @@ fn link_binary_for_cli_use() {
         eprintln!(
             "aviso: não foi possível criar o symlink em {} — adicione {} ao PATH manualmente",
             link.display(),
-            install_dir().display()
+            bundle_macos_dir().display()
         );
     }
 }
@@ -206,16 +296,14 @@ fn unlink_binary_for_cli_use() {
 /// (`IOHIDRequestAccess`), mas isso só funciona uma vez — se o usuário
 /// clicar em "Não Permitir" o macOS não pergunta de novo, e a única saída
 /// vira ir manualmente na tela de Monitoramento de Entrada. Essa função
-/// abre essa tela e revela o binário instalado no Finder, já selecionado,
-/// pra pelo menos poupar a navegação até
-/// `~/Library/Application Support/boopaste/` via Cmd+Shift+G.
+/// abre essa tela e revela o app instalado no Finder, já selecionado.
 pub fn open_permissions_fallback() {
     let _ = Command::new("open")
         .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")
         .status();
     let _ = Command::new("open")
         .arg("-R")
-        .arg(installed_binary_path())
+        .arg(bundle_path())
         .status();
 }
 
