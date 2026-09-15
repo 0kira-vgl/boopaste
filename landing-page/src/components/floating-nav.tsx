@@ -15,11 +15,31 @@ export function FloatingNav() {
   const pathname = usePathname();
   const isDocs = pathname?.startsWith("/docs");
 
+  function handleScrollTo(e: React.MouseEvent<HTMLAnchorElement>, targetId: string) {
+    if (isDocs) return;
+    e.preventDefault();
+    const el = document.getElementById(targetId);
+    if (el) {
+      const yOffset = -70;
+      const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+      window.history.pushState(null, "", `#${targetId}`);
+    }
+  }
+
+  function handleLogoClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (isDocs) return;
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.history.pushState(null, "", "/");
+  }
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-foreground/10 bg-background/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <Link
           href="/"
+          onClick={handleLogoClick}
           className="flex items-center gap-2.5 font-mono text-sm font-semibold tracking-tight text-foreground group"
         >
           <span className="transition-transform duration-200 group-hover:scale-110">
@@ -35,18 +55,21 @@ export function FloatingNav() {
         <div className="flex items-center gap-5 font-mono text-xs text-foreground/70 sm:gap-6">
           <Link
             href={isDocs ? "/#how-it-works" : "#how-it-works"}
+            onClick={(e) => handleScrollTo(e, "how-it-works")}
             className="hidden hover:text-foreground sm:inline transition-colors"
           >
             {t.nav.howItWorks}
           </Link>
           <Link
             href={isDocs ? "/#terminals" : "#terminals"}
+            onClick={(e) => handleScrollTo(e, "terminals")}
             className="hidden hover:text-foreground sm:inline transition-colors"
           >
             {t.nav.terminals}
           </Link>
           <Link
             href={isDocs ? "/#install" : "#install"}
+            onClick={(e) => handleScrollTo(e, "install")}
             className="hidden hover:text-foreground sm:inline transition-colors"
           >
             {t.nav.install}

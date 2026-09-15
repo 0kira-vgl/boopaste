@@ -13,7 +13,7 @@ export function Install() {
   const { t } = useLocale();
 
   return (
-    <section id="install" className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24">
+    <section id="install" className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 scroll-mt-20">
       <SectionLabel n="04" title={t.install.label} />
 
       <InstallCommand />

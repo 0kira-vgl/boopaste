@@ -9,7 +9,7 @@ export function Terminals() {
   const { t } = useLocale();
 
   return (
-    <section id="terminals" className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-24">
+    <section id="terminals" className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-24 scroll-mt-20">
       <SectionLabel n="03" title={t.terminals.label} />
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <GhosttyDemo />

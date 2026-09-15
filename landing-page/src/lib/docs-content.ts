@@ -109,7 +109,7 @@ export interface DocContent {
 
 export const docsEn: DocContent = {
   navTitle: "boopaste_ docs",
-  backToHome: "← home",
+  backToHome: "home",
   badge: "v0.1 · macOS Apple Silicon",
   title: "Under the Hood",
   subtitle:
@@ -460,7 +460,7 @@ export const docsEn: DocContent = {
 
 export const docsPt: DocContent = {
   navTitle: "boopaste_ docs",
-  backToHome: "← home",
+  backToHome: "home",
   badge: "v0.1 · macOS Apple Silicon",
   title: "Por Dentro do Código",
   subtitle:
