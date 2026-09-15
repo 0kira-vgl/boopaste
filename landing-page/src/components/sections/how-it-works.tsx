@@ -8,7 +8,7 @@ export function HowItWorks() {
   const { t } = useLocale();
 
   return (
-    <section id="how-it-works" className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-24">
+    <section id="how-it-works" className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-24 scroll-mt-20">
       <SectionLabel n="02" title={t.howItWorks.label} />
       <ol className="flex flex-col gap-8">
         {t.howItWorks.steps.map((step, i) => (

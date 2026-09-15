@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Terminal, Shield, Cpu, Wrench } from "lucide-react";
 import { FloatingNav } from "@/components/floating-nav";
@@ -7,13 +8,59 @@ import { SiteFooter } from "@/components/site-footer";
 import { useLocale } from "@/components/locale-provider";
 import { DocCodeBlock } from "@/components/doc-code-block";
 import { BoopasteSymbol } from "@/components/brand/boopaste-brand";
+import { cn } from "@/lib/cn";
 
 export default function DocsPage() {
   const { t } = useLocale();
   const docs = t.docs;
+  const [activeId, setActiveId] = useState<string>("overview");
+
+  useEffect(() => {
+    const sectionIds = docs.sections.map((s) => s.id);
+
+    const handleScroll = () => {
+      // Se rolou até o fim da página, ativa o último item
+      const isBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80;
+      if (isBottom) {
+        setActiveId(sectionIds[sectionIds.length - 1]);
+        return;
+      }
+
+      // Procura qual seção passou pelo offset do topo
+      const offset = 180;
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const id = sectionIds[i];
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.getBoundingClientRect().top;
+          if (top <= offset) {
+            setActiveId(id);
+            return;
+          }
+        }
+      }
+      setActiveId(sectionIds[0]);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [docs.sections]);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      const yOffset = -90;
+      const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+      setActiveId(id);
+    }
+  };
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-background text-foreground selection:bg-foreground selection:text-background">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground selection:bg-[#00FF66] selection:text-black">
       <FloatingNav />
 
       <div className="mx-auto flex w-full max-w-6xl flex-1 px-6 pt-24 pb-20">
@@ -33,16 +80,32 @@ export default function DocsPage() {
                 {docs.tocTitle}
               </span>
               <nav className="flex flex-col gap-2 pt-1 font-mono text-xs">
-                {docs.sections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-                  >
-                    <span className="text-[10px] text-foreground/30">{section.tag}</span>
-                    <span className="truncate">{section.title}</span>
-                  </a>
-                ))}
+                {docs.sections.map((section) => {
+                  const isActive = activeId === section.id;
+                  return (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      onClick={(e) => handleNavClick(e, section.id)}
+                      className={cn(
+                        "flex items-center gap-2 transition-colors",
+                        isActive
+                          ? "text-[#00FF66] font-medium"
+                          : "text-foreground/50 hover:text-foreground"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "text-[10px] transition-colors",
+                          isActive ? "text-[#00FF66]" : "text-foreground/30"
+                        )}
+                      >
+                        {section.tag}
+                      </span>
+                      <span className="truncate">{section.title}</span>
+                    </a>
+                  );
+                })}
               </nav>
             </div>
 
@@ -86,7 +149,7 @@ export default function DocsPage() {
           </header>
 
           {/* Section 01: Overview */}
-          <section id="overview" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="overview" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>01</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -151,7 +214,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 02: Pipeline */}
-          <section id="how-it-works" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="how-it-works" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>02</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -202,7 +265,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 03: CLI Commands */}
-          <section id="cli-commands" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="cli-commands" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>03</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -269,7 +332,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 04: Rust Modules Architecture */}
-          <section id="architecture" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="architecture" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>04</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -326,7 +389,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 05: Permissions & Security */}
-          <section id="permissions" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="permissions" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>05</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -373,7 +436,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 06: Installation */}
-          <section id="installation" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="installation" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>06</span>
               <span className="h-px flex-1 bg-foreground/15" />
@@ -421,7 +484,7 @@ export default function DocsPage() {
           </section>
 
           {/* Section 07: Troubleshooting */}
-          <section id="troubleshooting" className="flex scroll-mt-24 flex-col gap-6">
+          <section id="troubleshooting" className="flex scroll-mt-28 flex-col gap-6">
             <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-foreground/40">
               <span>07</span>
               <span className="h-px flex-1 bg-foreground/15" />
