@@ -54,13 +54,13 @@ export function GhosttyDemo() {
   return (
     <div
       ref={ref}
-      className="flex flex-col border border-foreground/20 bg-background"
+      className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none"
     >
       <TerminalChrome title="ghostty" status="online" statusLabel={t.terminals.ghostty.status} />
       <div className="h-40 whitespace-pre-wrap p-4 font-mono text-xs text-foreground/90">
-        <span className="text-foreground/50">$ </span>
+        <span className="text-foreground/40 select-none">$ </span>
         {output}
-        <span className="animate-pulse">▮</span>
+        <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
       </div>
     </div>
   );
@@ -70,10 +70,10 @@ export function NativeTerminalCard() {
   const { t } = useLocale();
 
   return (
-    <div className="flex flex-col border border-foreground/20 bg-background opacity-60">
+    <div className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none opacity-70">
       <TerminalChrome title="terminal" status="soon" statusLabel={t.terminals.native.status} />
       <div className="flex h-40 flex-col items-start gap-2 p-4 font-mono text-xs text-foreground/60">
-        <span>$ {t.terminals.native.line1}</span>
+        <span><span className="text-foreground/40 select-none">$ </span>{t.terminals.native.line1}</span>
         <span className="text-foreground/40">{t.terminals.native.line2}</span>
       </div>
     </div>
@@ -90,7 +90,7 @@ function TerminalChrome({
   statusLabel: string;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-foreground/20 px-3 py-2">
+    <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.03] px-3.5 py-2">
       <div className="flex gap-1.5">
         <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
         <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
@@ -101,11 +101,12 @@ function TerminalChrome({
       </span>
       <span
         className={cn(
-          "font-mono text-[10px] uppercase tracking-widest",
-          status === "online" ? "text-foreground" : "text-foreground/40"
+          "font-mono text-[10px] uppercase tracking-widest flex items-center gap-1.5",
+          status === "online" ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-foreground/40"
         )}
       >
-        {status === "online" ? "●" : "○"} {statusLabel}
+        <span className={cn("h-1.5 w-1.5 rounded-full", status === "online" ? "bg-emerald-500 animate-pulse" : "bg-foreground/30")} />
+        {statusLabel}
       </span>
     </div>
   );

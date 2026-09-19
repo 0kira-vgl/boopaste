@@ -32,7 +32,7 @@ export function LocaleToggle() {
           onClick={() => setLocale(opt.value)}
           className={cn(
             "relative z-10 flex h-full flex-1 items-center justify-center rounded-full transition-colors duration-300",
-            locale === opt.value ? "text-background" : "text-foreground/60 hover:text-foreground"
+            locale === opt.value ? "text-black font-semibold" : "text-foreground/60 hover:text-foreground"
           )}
         >
           {opt.label}

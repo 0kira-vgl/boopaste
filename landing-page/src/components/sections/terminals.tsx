@@ -16,7 +16,10 @@ export function Terminals() {
         <NativeTerminalCard />
       </div>
       <p className="text-sm leading-relaxed text-foreground/50">
-        <DistortText>{t.terminals.closingPre}</DistortText> <code className="font-mono text-xs">frontmost.rs</code>{" "}
+        <DistortText>{t.terminals.closingPre}</DistortText>{" "}
+        <code className="rounded border border-foreground/15 bg-foreground/5 px-1.5 py-0.5 font-mono text-xs text-foreground/80">
+          frontmost.rs
+        </code>{" "}
         <DistortText>{t.terminals.closingPost}</DistortText>
       </p>
     </section>

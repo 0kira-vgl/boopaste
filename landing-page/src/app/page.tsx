@@ -10,7 +10,7 @@ import { OpenSource } from "@/components/sections/open-source";
 
 export default function Home() {
   return (
-    <div className="relative flex flex-1 flex-col">
+    <div className="relative flex flex-1 flex-col bg-background text-foreground selection:bg-[#00FF66] selection:text-black">
       <ScrollVideoBackground />
       <FloatingNav />
       <main className="relative z-10 flex flex-1 flex-col">
