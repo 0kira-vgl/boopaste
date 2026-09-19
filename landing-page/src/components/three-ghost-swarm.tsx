@@ -433,6 +433,7 @@ export function ThreeGhostSwarm() {
       ghostItems.forEach(({ sprite, def }) => {
         const oldTex = sprite.material.map;
         const newTex = createGhostTexture(def.lines, textColor, def.glowColor, isDark);
+        newTex.needsUpdate = true;
         sprite.material.map = newTex;
         sprite.material.needsUpdate = true;
         if (oldTex) oldTex.dispose();

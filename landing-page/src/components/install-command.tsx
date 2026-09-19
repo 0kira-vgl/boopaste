@@ -41,8 +41,8 @@ export function InstallCommand({ compact = false }: { compact?: boolean }) {
         </TabButton>
       </div>
 
-      <div className="flex flex-col border border-foreground/20 bg-background">
-        <div className="flex items-center justify-between border-b border-foreground/20 px-3 py-2">
+      <div className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none">
+        <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.03] px-3.5 py-2">
           <div className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
             <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
@@ -50,16 +50,18 @@ export function InstallCommand({ compact = false }: { compact?: boolean }) {
           </div>
           <button
             onClick={copy}
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-foreground/50 hover:text-foreground"
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
           >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-            {copied ? t.install.copied : t.install.copy}
+            {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+            <span className={copied ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}>
+              {copied ? t.install.copied : t.install.copy}
+            </span>
           </button>
         </div>
-        <pre className={cn("whitespace-pre-wrap font-mono text-foreground/90", compact ? "p-3 text-[11px]" : "p-4 text-xs")}>
+        <pre className={cn("whitespace-pre-wrap font-mono text-foreground/90", compact ? "p-3.5 text-[11px]" : "p-4 text-xs")}>
           {command.split("\n").map((line) => (
             <div key={line}>
-              <span className="text-foreground/40">$ </span>
+              <span className="text-foreground/40 select-none">$ </span>
               {line}
             </div>
           ))}
@@ -83,7 +85,9 @@ function TabButton({
       onClick={onClick}
       className={cn(
         "flex-1 px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors",
-        active ? "bg-foreground text-background" : "text-foreground/50 hover:text-foreground"
+        active
+          ? "bg-foreground text-background font-medium"
+          : "text-foreground/50 hover:text-foreground hover:bg-foreground/[0.03]"
       )}
     >
       {children}

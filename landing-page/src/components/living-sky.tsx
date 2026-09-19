@@ -17,9 +17,18 @@ interface Star {
 export function LivingSky() {
   const [stars, setStars] = useState<Star[]>([]);
   const glowRef = useRef<HTMLDivElement>(null);
+  const [isDark, setIsDark] = useState(true);
 
-  // Gera campo de estrelas determinístico no client para evitar mismatch de hidratação
+  // Sincroniza estado de tema no client
   useEffect(() => {
+    const checkDark = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+    checkDark();
+
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
     const starColors = ["#ffffff", "#00FF66", "#00F0FF", "#88ffaa"];
     const generated: Star[] = Array.from({ length: 140 }, (_, i) => {
       // Pseudorandom com seed previsível
@@ -66,26 +75,27 @@ export function LivingSky() {
     raf = requestAnimationFrame(updateGlow);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf);
     };
   }, []);
 
-const GRAIN_SVG =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
-  );
+  const GRAIN_SVG =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
+    );
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none bg-[#0a0a0a]">
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none bg-background transition-colors duration-300">
       {/* 1. Cena 3D Three.js (Enxame de Fantasmas 60 FPS com câmera de scroll) */}
       <ThreeGhostSwarm />
 
-      {/* 2. Cursor Glow / Nebulosa Neon pulsante (inspirado no Yucatan) */}
+      {/* 2. Cursor Glow / Nebulosa Neon pulsante */}
       <div
         ref={glowRef}
-        className="absolute -left-40 -top-40 h-80 w-80 rounded-full opacity-40 blur-[100px] transition-opacity duration-1000 dark:opacity-50"
+        className="absolute -left-40 -top-40 h-80 w-80 rounded-full opacity-20 blur-[100px] transition-opacity duration-1000 dark:opacity-50"
         style={{
           background: "radial-gradient(circle, rgba(0, 255, 102, 0.28) 0%, rgba(0, 240, 255, 0.14) 45%, transparent 70%)",
           willChange: "transform",
@@ -94,34 +104,41 @@ const GRAIN_SVG =
 
       {/* 3. Campo de Estrelas Cintilantes (Twinkling Starfield) */}
       <div className="absolute inset-0 z-0">
-        {stars.map((s) => (
-          <span
-            key={s.id}
-            className="absolute rounded-full animate-star-twinkle"
-            style={{
-              left: `${s.x}%`,
-              top: `${s.y}%`,
-              width: `${s.size}px`,
-              height: `${s.size}px`,
-              backgroundColor: s.color,
-              boxShadow: s.glow ? `0 0 10px ${s.color}, 0 0 4px ${s.color}` : `0 0 4px ${s.color}`,
-              animationDuration: `${s.duration}s`,
-              animationDelay: `${s.delay}s`,
-            }}
-          />
-        ))}
+        {stars.map((s) => {
+          const starBg = isDark ? s.color : s.color === "#ffffff" ? "#18181b" : s.color;
+          return (
+            <span
+              key={s.id}
+              className="absolute rounded-full animate-star-twinkle transition-opacity duration-500 opacity-25 dark:opacity-100"
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                width: `${s.size}px`,
+                height: `${s.size}px`,
+                backgroundColor: starBg,
+                boxShadow: isDark
+                  ? s.glow
+                    ? `0 0 10px ${s.color}, 0 0 4px ${s.color}`
+                    : `0 0 4px ${s.color}`
+                  : "none",
+                animationDuration: `${s.duration}s`,
+                animationDelay: `${s.delay}s`,
+              }}
+            />
+          );
+        })}
       </div>
 
-      {/* 4. Film Grain Overlay (textura tátil analógica do Yucatan) */}
+      {/* 4. Film Grain Overlay */}
       <div
-        className="pointer-events-none absolute inset-0 z-10 mix-blend-overlay opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 z-10 opacity-[0.03] mix-blend-multiply transition-opacity duration-300 dark:opacity-[0.07] dark:mix-blend-overlay"
         style={{ backgroundImage: `url("${GRAIN_SVG}")` }}
         aria-hidden
       />
 
-      {/* 5. Vinheta CRT Retro sutil */}
+      {/* 5. Vinheta CRT Retro sutil (apenas no modo escuro) */}
       <div
-        className="absolute inset-0 opacity-45 mix-blend-multiply"
+        className="absolute inset-0 opacity-0 transition-opacity duration-300 dark:opacity-45 mix-blend-multiply"
         style={{
           background: "radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.8) 100%)",
         }}

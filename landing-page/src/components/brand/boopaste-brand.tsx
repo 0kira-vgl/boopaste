@@ -47,6 +47,10 @@ export function BoopasteSymbol({
       className={className}
       {...props}
     >
+      {/* Pupilas escuras para manter a expressividade viva em qualquer tema */}
+      <circle cx="21.3" cy="21" r="1.8" className="fill-zinc-900" />
+      <circle cx="27.8" cy="21" r="1.8" className="fill-zinc-900" />
+
       {/* Fantasma Suave com olhos em recorte negativo real */}
       <path
         fillRule="evenodd"
@@ -57,7 +61,7 @@ export function BoopasteSymbol({
       {/* Centelha cósmica ✦ flutuando no topo direito */}
       <path
         d="M36 10C36 12.5 37.5 14 40 14C37.5 14 36 15.5 36 18C36 15.5 34.5 14 32 14C34.5 14 36 12.5 36 10Z"
-        fill="#ffffff"
+        className="fill-zinc-900 dark:fill-white transition-colors"
       />
     </svg>
   );
