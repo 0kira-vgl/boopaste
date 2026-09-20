@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "boopaste — paste images as file paths, in your terminal",
+  title: "boopaste · paste images as file paths, in your terminal",
   description:
     "A macOS daemon that turns clipboard images into real PNG file paths when you paste in Ghostty (and soon, other terminals). Open source, MIT licensed.",
   metadataBase: new URL("https://boopaste.dev"),
   openGraph: {
     title: "boopaste",
-    description: "Paste images as file paths — only in your terminal.",
+    description: "Paste images as file paths, only in your terminal.",
     type: "website",
   },
 };

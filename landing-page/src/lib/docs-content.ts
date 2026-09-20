@@ -231,7 +231,7 @@ export const docsEn: DocContent = {
           "Creates application bundle containing custom AppIcon.icns for native macOS permission dialogues.",
           "Atomically copies the binary using rename to avoid file descriptor conflicts with running processes.",
           "Signs the app ad-hoc (codesign --sign - --identifier com.matheus.boopaste --force).",
-          "Does NOT start the service automatically — run boopaste on afterwards.",
+          "Does NOT start the service automatically: run boopaste on afterwards.",
         ],
       },
       {
@@ -582,7 +582,7 @@ export const docsPt: DocContent = {
           "Cria a estrutura de app bundle com AppIcon.icns para exibir o ícone nativo do fantasma nas permissões do macOS.",
           "Copia o binário de forma atômica usando rename para evitar erros de assinatura de código em instâncias já em execução.",
           "Assina o app localmente com identificador estável (codesign --sign - --identifier com.matheus.boopaste --force).",
-          "NÃO liga o serviço automaticamente — execute boopaste on em seguida.",
+          "NÃO liga o serviço automaticamente: execute boopaste on em seguida.",
         ],
       },
       {
