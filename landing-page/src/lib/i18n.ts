@@ -56,9 +56,9 @@ const en = {
   },
   install: {
     label: "install",
-    note: "mocked for now (the tap and the install script don't exist yet, this is a preview of what it'll look like)",
+    note: "no custom domain yet, so the script is served straight from the Vercel deployment",
     homebrewCmd: "brew tap 0kira-vgl/boopaste\nbrew install boopaste",
-    curlCmd: "curl -fsSL https://boopaste.dev/install.sh | sh",
+    curlCmd: "curl -fsSL https://boopaste.vercel.app/install.sh | sh",
     copy: "copy",
     copied: "copied",
   },
@@ -122,9 +122,9 @@ const pt: typeof en = {
   },
   install: {
     label: "instalar",
-    note: "ainda mockado (o tap e o script de instalação não existem de verdade ainda, isso é um preview de como vai ficar)",
+    note: "ainda sem domínio próprio, então o script é servido direto do deploy na Vercel",
     homebrewCmd: "brew tap 0kira-vgl/boopaste\nbrew install boopaste",
-    curlCmd: "curl -fsSL https://boopaste.dev/install.sh | sh",
+    curlCmd: "curl -fsSL https://boopaste.vercel.app/install.sh | sh",
     copy: "copiar",
     copied: "copiado",
   },

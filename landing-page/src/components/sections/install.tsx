@@ -1,9 +1,10 @@
 "use client";
 
-// Comandos de instalação ainda mockados: o tap `0kira-vgl/homebrew-boopaste`
-// e o script `install.sh` não existem de verdade ainda (dependem de
-// GitHub Releases/tags e do domínio boopaste.dev). Esse componente já fica
-// pronto pra virar real — é só publicar o tap e o script no caminho certo.
+// Comandos de instalação reais: o tap `0kira-vgl/homebrew-boopaste` e o
+// `install.sh` (servido em `public/install.sh`, ver landing-page/public)
+// dependem das GitHub Releases publicadas pelo workflow
+// `.github/workflows/release.yml`. Sem domínio próprio ainda, o script é
+// servido direto pela URL da Vercel.
 import { SectionLabel } from "@/components/sections/problem";
 import { useLocale } from "@/components/locale-provider";
 import { InstallCommand } from "@/components/install-command";

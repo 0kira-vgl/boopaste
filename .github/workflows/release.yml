@@ -1,0 +1,38 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: macos-14 # Apple Silicon runner, matches the arm64-only target
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Build release binary
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Package tarball
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          staging="boopaste-${version}-aarch64-apple-darwin"
+          mkdir "$staging"
+          cp target/aarch64-apple-darwin/release/boopaste "$staging/"
+          cp README.md LICENSE "$staging/"
+          tar -czf "${staging}.tar.gz" "$staging"
+          shasum -a 256 "${staging}.tar.gz" > "${staging}.tar.gz.sha256"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            boopaste-*.tar.gz
+            boopaste-*.tar.gz.sha256
+          generate_release_notes: true
