@@ -142,13 +142,13 @@ export default function PreviewPage() {
               </div>
               <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-white/40">Header (20px):</span>
-                <BoopasteSymbol size={20} />
+                <span className="font-mono text-[11px] text-white/40">Header (28px):</span>
+                <BoopasteSymbol size={28} />
               </div>
               <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-white/40">Favicon (14px):</span>
-                <BoopasteSymbol size={14} />
+                <span className="font-mono text-[11px] text-white/40">Favicon:</span>
+                <BoopasteSymbol size={20} />
               </div>
             </div>
           </div>

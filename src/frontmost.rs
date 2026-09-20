@@ -1,12 +1,15 @@
 // Detecta qual app está em foco (NSWorkspace.frontmostApplication)
-// para restringir o comportamento ao Ghostty.
+// para restringir o comportamento aos terminais suportados.
 
 use objc2_app_kit::NSWorkspace;
 
-const GHOSTTY_BUNDLE_ID: &str = "com.mitchellh.ghostty";
+const SUPPORTED_TERMINAL_BUNDLE_IDS: &[&str] = &[
+    "com.mitchellh.ghostty",
+    "com.apple.Terminal",
+];
 
-/// Retorna true se o app em foco no momento for o Ghostty.
-pub fn is_ghostty_frontmost() -> bool {
+/// Retorna true se o app em foco no momento for um dos terminais suportados.
+pub fn is_supported_terminal_frontmost() -> bool {
     let workspace = NSWorkspace::sharedWorkspace();
     let Some(app) = workspace.frontmostApplication() else {
         return false;
@@ -14,5 +17,6 @@ pub fn is_ghostty_frontmost() -> bool {
     let Some(bundle_id) = app.bundleIdentifier() else {
         return false;
     };
-    bundle_id.to_string() == GHOSTTY_BUNDLE_ID
+    let bundle_id = bundle_id.to_string();
+    SUPPORTED_TERMINAL_BUNDLE_IDS.contains(&bundle_id.as_str())
 }

@@ -7,7 +7,7 @@ mod launchagent;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "boopaste", version, about = "Cola imagens do clipboard como caminho de arquivo, só no Ghostty")]
+#[command(name = "boopaste", version, about = "Cola imagens do clipboard como caminho de arquivo, no Ghostty e no Terminal")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

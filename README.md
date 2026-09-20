@@ -1,18 +1,19 @@
 # boopaste
 
-Cola imagens do clipboard como caminho de arquivo — só dentro do [Ghostty](https://ghostty.org).
+Cola imagens do clipboard como caminho de arquivo — só dentro do
+[Ghostty](https://ghostty.org) e do Terminal.app nativo do macOS.
 
 Terminais não recebem bytes de imagem via paste, só texto. Quando você copia
-um print e dá Cmd+V dentro do Ghostty, o `boopaste` intercepta o atalho,
-salva a imagem como PNG em disco e troca o conteúdo do clipboard pelo
+um print e dá Cmd+V dentro de um desses terminais, o `boopaste` intercepta o
+atalho, salva a imagem como PNG em disco e troca o conteúdo do clipboard pelo
 caminho do arquivo — assim o paste cola um path válido, que ferramentas como
-o Claude Code interpretam como imagem. Fora do Ghostty o Cmd+V funciona
-normal, sem nenhuma interferência.
+o Claude Code interpretam como imagem. Fora deles o Cmd+V funciona normal,
+sem nenhuma interferência.
 
 ## Requisitos
 
 - macOS (Apple Silicon)
-- [Ghostty](https://ghostty.org) instalado
+- [Ghostty](https://ghostty.org) ou o Terminal.app (já vem no macOS)
 - [Rust](https://www.rust-lang.org) (só se for compilar a partir do código-fonte)
 
 ## Instalação
@@ -62,8 +63,9 @@ manualmente.
 
 - **`eventtap`**: instala um `CGEventTap` global (via `core-graphics`) que
   escuta apenas o atalho Cmd+V, em toda a sessão do usuário.
-- **`frontmost`**: verifica se o app em foco é o Ghostty (via `NSWorkspace`)
-  antes de agir — em qualquer outro app o Cmd+V passa direto, sem swap.
+- **`frontmost`**: verifica se o app em foco é um dos terminais suportados
+  (Ghostty ou Terminal.app, via `NSWorkspace`) antes de agir — em qualquer
+  outro app o Cmd+V passa direto, sem swap.
 - **`clipboard`**: se houver uma imagem no clipboard, salva como PNG em
   `/tmp/boopaste/`, substitui o clipboard pelo caminho do arquivo, e restaura
   a imagem original ~200ms depois (pra não quebrar o paste normal em outros
