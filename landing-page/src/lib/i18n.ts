@@ -1,4 +1,5 @@
 import { docsDictionary } from "@/lib/docs-content";
+import { APP_VERSION } from "@/lib/version";
 
 export type Locale = "en" | "pt";
 
@@ -15,7 +16,7 @@ const en = {
     tagline: "Paste images as file paths, only in your terminal.",
     description:
       "Copy an image, hit ⌘V in your terminal, get a real file path instead of garbage. No GUI, no menu bar app: just a background daemon that does one thing.",
-    badge: "v0 · macOS only · MIT",
+    badge: `v${APP_VERSION} · macOS only · MIT`,
   },
   problem: {
     label: "the problem",
@@ -81,7 +82,7 @@ const pt: typeof en = {
     tagline: "Cole imagens como caminho de arquivo, só no seu terminal.",
     description:
       "Copie uma imagem, aperte ⌘V no terminal, e receba um caminho de arquivo de verdade em vez de lixo. Sem GUI, sem app na menu bar: só um daemon em background que faz uma coisa só.",
-    badge: "v0 · só macOS · MIT",
+    badge: `v${APP_VERSION} · só macOS · MIT`,
   },
   problem: {
     label: "o problema",

@@ -1,3 +1,5 @@
+import { APP_VERSION } from "@/lib/version";
+
 export type DocSectionId =
   | "overview"
   | "how-it-works"
@@ -110,7 +112,7 @@ export interface DocContent {
 export const docsEn: DocContent = {
   navTitle: "boopaste_ docs",
   backToHome: "home",
-  badge: "v0.1 · macOS Apple Silicon",
+  badge: `v${APP_VERSION} · macOS Apple Silicon`,
   title: "Under the Hood",
   subtitle:
     "Complete technical reference for boopaste: command semantics, internal Rust modules, macOS event tap interception, and launchd daemon management.",
@@ -462,7 +464,7 @@ export const docsEn: DocContent = {
 export const docsPt: DocContent = {
   navTitle: "boopaste_ docs",
   backToHome: "home",
-  badge: "v0.1 · macOS Apple Silicon",
+  badge: `v${APP_VERSION} · macOS Apple Silicon`,
   title: "Por Dentro do Código",
   subtitle:
     "Manual técnico e referência completa do boopaste: o que cada comando faz, arquitetura interna em Rust, interceptação de eventos no macOS e daemon launchd.",
