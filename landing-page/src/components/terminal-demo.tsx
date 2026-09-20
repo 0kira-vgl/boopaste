@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Image as ImageIcon } from "lucide-react";
 import { useLocale } from "@/components/locale-provider";
+import { Kbd } from "@/components/ui/kbd";
 
 export function TerminalDemo() {
   const { t } = useLocale();
@@ -62,9 +63,7 @@ export function TerminalDemo() {
         {phase === 1 && (
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-foreground/40 select-none">$ </span>
-            <span className="rounded border border-foreground/30 bg-foreground/10 px-1 py-0.5 text-[11px] text-foreground font-mono font-medium">
-              ⌘V
-            </span>
+            <Kbd size="sm">⌘V</Kbd>
             <span className="rounded border border-foreground/20 bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/80 font-mono inline-flex items-center gap-1.5">
               <ImageIcon className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
               <span>image/png</span>

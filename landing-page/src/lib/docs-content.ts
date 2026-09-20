@@ -148,7 +148,7 @@ export const docsEn: DocContent = {
       },
       {
         title: "Terminal isolated",
-        desc: "Uses Cocoa NSWorkspace APIs to inspect the frontmost application. Only triggers inside Ghostty and macOS Terminal. Cmd+V in Chrome, WhatsApp, Slack, or Figma is 100% untouched.",
+        desc: "Uses Cocoa NSWorkspace APIs to inspect the frontmost application. Only triggers inside Ghostty and macOS Terminal. ⌘V in Chrome, WhatsApp, Slack, or Figma is 100% untouched.",
       },
       {
         title: "Transient swap with auto-restore",

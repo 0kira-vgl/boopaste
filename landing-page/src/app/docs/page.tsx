@@ -8,6 +8,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { useLocale } from "@/components/locale-provider";
 import { DocCodeBlock } from "@/components/doc-code-block";
 import { BoopasteSymbol } from "@/components/brand/boopaste-brand";
+import { Kbd } from "@/components/ui/kbd";
+import { DocText } from "@/components/doc-text";
+import { PipelineFlowDiagram } from "@/components/pipeline-flow-diagram";
 import { cn } from "@/lib/cn";
 
 export default function DocsPage() {
@@ -124,7 +127,7 @@ export default function DocsPage() {
                 {docs.badge}
               </span>
               <span className="flex items-center gap-1.5 font-mono text-xs text-emerald-600 dark:text-emerald-400">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 MIT License
               </span>
             </div>
@@ -143,7 +146,7 @@ export default function DocsPage() {
             <div className="mt-2 rounded-xl border border-foreground/15 bg-foreground/[0.02] p-5">
               <p className="font-mono text-xs leading-relaxed text-foreground/80 sm:text-sm">
                 <span className="font-semibold text-foreground">TL;DR: </span>
-                {docs.quickSummary}
+                <DocText text={docs.quickSummary} />
               </p>
             </div>
           </header>
@@ -161,8 +164,8 @@ export default function DocsPage() {
             </h2>
 
             <div className="flex flex-col gap-4 text-sm leading-relaxed text-foreground/80">
-              <p>{docs.overview.p1}</p>
-              <p>{docs.overview.p2}</p>
+              <p><DocText text={docs.overview.p1} /></p>
+              <p><DocText text={docs.overview.p2} /></p>
             </div>
 
             {/* Before / After Box */}
@@ -176,7 +179,7 @@ export default function DocsPage() {
                     ✕ {docs.overview.problemBox.beforeTitle}
                   </span>
                   <p className="font-mono text-xs leading-relaxed text-foreground/70">
-                    {docs.overview.problemBox.beforeBody}
+                    <DocText text={docs.overview.problemBox.beforeBody} />
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 p-5 bg-emerald-500/[0.03]">
@@ -184,7 +187,7 @@ export default function DocsPage() {
                     ✓ {docs.overview.problemBox.afterTitle}
                   </span>
                   <p className="font-mono text-xs leading-relaxed text-foreground/70">
-                    {docs.overview.problemBox.afterBody}
+                    <DocText text={docs.overview.problemBox.afterBody} />
                   </p>
                 </div>
               </div>
@@ -205,7 +208,7 @@ export default function DocsPage() {
                       {item.title}
                     </span>
                     <span className="text-xs leading-relaxed text-foreground/60">
-                      {item.desc}
+                      <DocText text={item.desc} />
                     </span>
                   </div>
                 ))}
@@ -226,7 +229,7 @@ export default function DocsPage() {
             </h2>
 
             <p className="text-sm leading-relaxed text-foreground/70">
-              {docs.pipeline.description}
+              <DocText text={docs.pipeline.description} />
             </p>
 
             {/* Step list */}
@@ -246,22 +249,15 @@ export default function DocsPage() {
                       </span>
                     </div>
                     <p className="text-xs leading-relaxed text-foreground/70 sm:text-sm">
-                      {step.desc}
+                      <DocText text={step.desc} />
                     </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Flow diagram ASCII */}
-            <div className="flex flex-col gap-2">
-              <span className="font-mono text-xs uppercase tracking-wider text-foreground/50">
-                {docs.pipeline.flowDiagramTitle}
-              </span>
-              <pre className="overflow-x-auto rounded-xl border border-foreground/15 bg-foreground/[0.02] p-4 font-mono text-[11px] leading-relaxed text-foreground/80 sm:text-xs">
-                {docs.pipeline.flowDiagramAscii}
-              </pre>
-            </div>
+            {/* Visual Pipeline Flow Diagram */}
+            <PipelineFlowDiagram rawAscii={docs.pipeline.flowDiagramAscii} />
           </section>
 
           {/* Section 03: CLI Commands */}
@@ -277,7 +273,7 @@ export default function DocsPage() {
                 {docs.commands.title}
               </h2>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {docs.commands.description}
+                <DocText text={docs.commands.description} />
               </p>
             </div>
 
@@ -294,8 +290,8 @@ export default function DocsPage() {
                         {cmd.syntax}
                       </code>
                     </div>
-                    <span className="font-mono text-[11px] text-foreground/50">
-                      subcommand: {cmd.name}
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-foreground/50">
+                      subcommand: <Kbd size="xs">{cmd.name}</Kbd>
                     </span>
                   </div>
 
@@ -305,7 +301,7 @@ export default function DocsPage() {
                     </p>
                     <p className="text-xs leading-relaxed text-foreground/70">
                       <span className="font-semibold text-foreground">macOS action: </span>
-                      {cmd.behavior}
+                      <DocText text={cmd.behavior} />
                     </p>
 
                     <div className="mt-1 flex flex-col gap-1.5 rounded-lg border border-foreground/10 bg-foreground/[0.01] p-3.5">
@@ -316,7 +312,7 @@ export default function DocsPage() {
                         {cmd.details.map((detail, idx) => (
                           <li key={idx} className="flex items-start gap-2">
                             <span className="text-foreground/30">•</span>
-                            <span>{detail}</span>
+                            <span><DocText text={detail} /></span>
                           </li>
                         ))}
                       </ul>
@@ -367,7 +363,7 @@ export default function DocsPage() {
                   </div>
 
                   <p className="text-xs leading-relaxed text-foreground/80">
-                    {mod.description}
+                    <DocText text={mod.description} />
                   </p>
 
                   <div className="mt-auto flex flex-col gap-1 pt-2">
@@ -378,7 +374,7 @@ export default function DocsPage() {
                       {mod.highlights.map((h, i) => (
                         <li key={i} className="flex items-start gap-1.5">
                           <span className="text-emerald-500">›</span>
-                          <span>{h}</span>
+                          <span><DocText text={h} /></span>
                         </li>
                       ))}
                     </ul>
@@ -401,7 +397,7 @@ export default function DocsPage() {
                 {docs.permissions.title}
               </h2>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {docs.permissions.description}
+                <DocText text={docs.permissions.description} />
               </p>
             </div>
 
@@ -413,7 +409,7 @@ export default function DocsPage() {
                   {docs.permissions.calloutTitle}
                 </h3>
                 <p className="font-mono text-xs leading-relaxed text-foreground/80">
-                  {docs.permissions.calloutBody}
+                  <DocText text={docs.permissions.calloutBody} />
                 </p>
               </div>
             </div>
@@ -428,7 +424,7 @@ export default function DocsPage() {
                     {pt.title}
                   </span>
                   <p className="text-xs leading-relaxed text-foreground/70">
-                    {pt.desc}
+                    <DocText text={pt.desc} />
                   </p>
                 </div>
               ))}
@@ -448,7 +444,7 @@ export default function DocsPage() {
                 {docs.installation.title}
               </h2>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {docs.installation.description}
+                <DocText text={docs.installation.description} />
               </p>
             </div>
 
@@ -476,7 +472,7 @@ export default function DocsPage() {
                   </span>
                   <DocCodeBlock code={step.command} language="bash" />
                   <span className="font-mono text-[11px] text-foreground/50">
-                    {step.notes}
+                    <DocText text={step.notes} />
                   </span>
                 </div>
               ))}
@@ -496,7 +492,7 @@ export default function DocsPage() {
                 {docs.troubleshooting.title}
               </h2>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {docs.troubleshooting.description}
+                <DocText text={docs.troubleshooting.description} />
               </p>
             </div>
 
@@ -512,7 +508,9 @@ export default function DocsPage() {
                       {item.issue}
                     </span>
                   </div>
-                  <p className="text-xs text-foreground/70">{item.solution}</p>
+                  <p className="text-xs text-foreground/70">
+                    <DocText text={item.solution} />
+                  </p>
                   {item.code && <DocCodeBlock code={item.code} language="bash" />}
                 </div>
               ))}
