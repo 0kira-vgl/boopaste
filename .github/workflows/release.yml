@@ -5,6 +5,9 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: write # needed for softprops/action-gh-release to publish the release
+
 jobs:
   build:
     runs-on: macos-14 # Apple Silicon runner, matches the arm64-only target
