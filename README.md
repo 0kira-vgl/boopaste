@@ -57,6 +57,15 @@ curl -fsSL https://boopaste.vercel.app/install.sh | sh
 
 Downloads the latest release, extracts it, and runs `boopaste init` for you.
 
+Every release tarball is signed with a
+[build provenance attestation](https://github.com/0kira-vgl/boopaste/attestations),
+proving it was built by this repo's own CI from a specific commit, not
+uploaded by hand. Verify it with:
+
+```bash
+gh attestation verify boopaste-*.tar.gz -R 0kira-vgl/boopaste
+```
+
 ### From source
 
 ```bash

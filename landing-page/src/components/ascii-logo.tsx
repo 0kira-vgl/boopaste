@@ -10,7 +10,12 @@ const BANNER = String.raw`
 | |_) | (_) | (_) | |_) | (_| \__ \ ||  __/
 |_.__/ \___/ \___/| .__/ \__,_|___/\__\___|
                   |_|
-`.trim();
+`
+  // .trim() quebraria o alinhamento: a primeira linha começa com um espaço
+  // significativo (recuo do topo do "b"). Só removemos a quebra de linha
+  // extra que sobra por causa da formatação do template literal.
+  .replace(/^\n/, "")
+  .replace(/\n$/, "");
 
 const LINES = BANNER.split("\n");
 

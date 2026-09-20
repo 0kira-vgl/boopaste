@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write # needed for softprops/action-gh-release to publish the release
+  id-token: write # needed for attest-build-provenance to mint a Sigstore identity
+  attestations: write # needed for attest-build-provenance to record the attestation
 
 jobs:
   build:
@@ -31,6 +33,15 @@ jobs:
           cp README.md LICENSE "$staging/"
           tar -czf "${staging}.tar.gz" "$staging"
           shasum -a 256 "${staging}.tar.gz" > "${staging}.tar.gz.sha256"
+
+      # Signs the tarball's digest with a short-lived Sigstore identity tied
+      # to this exact workflow run and commit. Doesn't replace the sha256
+      # check in the Homebrew formula, it proves *where* that binary came
+      # from. Verify with: gh attestation verify <file> -R 0kira-vgl/boopaste
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "boopaste-*.tar.gz"
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
