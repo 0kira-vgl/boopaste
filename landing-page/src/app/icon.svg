@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 8 30 30" width="48" height="48" fill="none">
+  <style>
+    .sparkle { fill: #18181b; }
+    @media (prefers-color-scheme: dark) {
+      .sparkle { fill: #ffffff; }
+    }
+  </style>
+  <circle cx="21.3" cy="21" r="1.8" fill="#18181b" />
+  <circle cx="27.8" cy="21" r="1.8" fill="#18181b" />
   <path
     fill-rule="evenodd"
     clip-rule="evenodd"
@@ -6,7 +14,8 @@
     fill="#00FF66"
   />
   <path
+    class="sparkle"
+    fill="#18181b"
     d="M36 10C36 12.5 37.5 14 40 14C37.5 14 36 15.5 36 18C36 15.5 34.5 14 32 14C34.5 14 36 12.5 36 10Z"
-    fill="#ffffff"
   />
 </svg>

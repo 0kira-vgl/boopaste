@@ -43,7 +43,7 @@ export function FloatingNav() {
           className="flex items-center gap-2.5 font-mono text-sm font-semibold tracking-tight text-foreground group"
         >
           <span className="transition-transform duration-200 group-hover:scale-110">
-            <BoopasteSymbol size={20} />
+            <BoopasteSymbol size={28} />
           </span>
           <span>boopaste_</span>
           {isDocs && (
