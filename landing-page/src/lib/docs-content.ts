@@ -115,7 +115,7 @@ export const docsEn: DocContent = {
   subtitle:
     "Complete technical reference for boopaste: command semantics, internal Rust modules, macOS event tap interception, and launchd daemon management.",
   quickSummary:
-    "boopaste runs silently as a background macOS LaunchAgent. When you press ⌘V inside Ghostty with an image in your clipboard, it transparently writes the image to disk and pastes the absolute file path instead.",
+    "boopaste runs silently as a background macOS LaunchAgent. When you press ⌘V inside Ghostty or macOS Terminal with an image in your clipboard, it transparently writes the image to disk and pastes the absolute file path instead.",
   tocTitle: "Table of Contents",
   sections: [
     { id: "overview", title: "Overview & Purpose", tag: "01" },
@@ -135,10 +135,10 @@ export const docsEn: DocContent = {
       title: "The Clipboard Friction",
       beforeTitle: "Without boopaste",
       beforeBody:
-        "⌘C screenshot → switch to Ghostty → ⌘V → terminal drops it or outputs escape codes → open Finder → drag file into terminal.",
+        "⌘C screenshot → switch to terminal (Ghostty / Terminal.app) → ⌘V → terminal drops it or outputs escape codes → open Finder → drag file into terminal.",
       afterTitle: "With boopaste",
       afterBody:
-        "⌘C screenshot → switch to Ghostty → ⌘V → /tmp/boopaste/clip_1726345678123.png is pasted instantly. Original image restored 200ms later.",
+        "⌘C screenshot → switch to terminal (Ghostty / Terminal.app) → ⌘V → /tmp/boopaste/clip_1726345678123.png is pasted instantly. Original image restored 200ms later.",
     },
     keyBenefitsTitle: "Core Design Tenets",
     keyBenefits: [
@@ -147,8 +147,8 @@ export const docsEn: DocContent = {
         desc: "No menu bar item, no dock icon (LSUIElement + LSBackgroundOnly), and no memory leaks. Just a native binary compiled with zero junk.",
       },
       {
-        title: "Ghostty isolated",
-        desc: "Uses Cocoa NSWorkspace APIs to inspect the frontmost application. Cmd+V in Chrome, WhatsApp, Slack, or Figma is 100% untouched.",
+        title: "Terminal isolated",
+        desc: "Uses Cocoa NSWorkspace APIs to inspect the frontmost application. Only triggers inside Ghostty and macOS Terminal. Cmd+V in Chrome, WhatsApp, Slack, or Figma is 100% untouched.",
       },
       {
         title: "Transient swap with auto-restore",
@@ -176,7 +176,7 @@ export const docsEn: DocContent = {
         num: "02",
         title: "Frontmost Application Check",
         code: "frontmost.rs → NSWorkspace",
-        desc: "Queries Cocoa's NSWorkspace frontmostApplication bundle identifier. If the bundle is not 'com.mitchellh.ghostty', boopaste exits immediately without touching the pasteboard.",
+        desc: "Queries Cocoa's NSWorkspace frontmostApplication bundle identifier. If the bundle is not 'com.mitchellh.ghostty' or 'com.apple.Terminal', boopaste exits immediately without touching the pasteboard.",
       },
       {
         num: "03",
@@ -187,14 +187,14 @@ export const docsEn: DocContent = {
       {
         num: "04",
         title: "Terminal Receives Path",
-        code: "OS → Ghostty Terminal",
-        desc: "The original ⌘V event passes through to Ghostty, which reads the clipboard text stream and receives the valid path string.",
+        code: "OS → Terminal (Ghostty / Terminal.app)",
+        desc: "The original ⌘V event passes through to the active terminal, which reads the clipboard text stream and receives the valid path string.",
       },
       {
         num: "05",
         title: "Original Clipboard Restored",
         code: "thread::spawn → 200ms delay",
-        desc: "A background thread restores the original image data to the system clipboard, ensuring your clipboard history or subsequent pastes outside Ghostty keep the image intact.",
+        desc: "A background thread restores the original image data to the system clipboard, ensuring your clipboard history or subsequent pastes outside your terminal keep the image intact.",
       },
     ],
     flowDiagramTitle: "Flow Diagram",
@@ -204,15 +204,15 @@ export const docsEn: DocContent = {
 [CGEventTap in eventtap.rs] ── (Not ⌘+V) ─────────────► [Pass through untouched]
         │ (⌘+V detected)
         ▼
-[Is Ghostty frontmost?] ───── (No, another app) ──────► [Pass through untouched]
-        │ (Yes: com.mitchellh.ghostty)
+[Is supported terminal frontmost?] ─ (No, another app) ─► [Pass through untouched]
+        │ (Yes: Ghostty / Terminal.app)
         ▼
 [Does clipboard hold image?] ─ (No, just text/empty) ─► [Pass through untouched]
         │ (Yes, ImageData found)
         ▼
 [1. Save /tmp/boopaste/clip_<ts>.png]
 [2. Set clipboard text = file path]
-[3. Allow ⌘+V event into Ghostty (pastes path)]
+[3. Allow ⌘+V event into terminal (pastes path)]
 [4. Spawn background thread: wait 200ms → restore original image bytes]`,
   },
   commands: {
@@ -323,7 +323,7 @@ export const docsEn: DocContent = {
         description: "Queries Cocoa's NSWorkspace to inspect the frontmost active application window.",
         highlights: [
           "Uses objc2-app-kit to call [NSWorkspace sharedWorkspace].frontmostApplication.",
-          "Validates bundle identifier against 'com.mitchellh.ghostty'.",
+          "Validates bundle identifier against 'com.mitchellh.ghostty' and 'com.apple.Terminal'.",
           "Designed to easily accept additional terminals in the future.",
         ],
       },
@@ -355,7 +355,7 @@ export const docsEn: DocContent = {
         description: "Bridges the event tap callback with frontmost filtering and clipboard swapping.",
         highlights: [
           "Runs eventtap::run() and blocks current thread in CFRunLoop.",
-          "Only triggers clipboard::swap_image_for_path() when is_ghostty_frontmost() is true.",
+          "Only triggers clipboard::swap_image_for_path() when is_supported_terminal_frontmost() is true.",
         ],
       },
     ],
@@ -394,7 +394,7 @@ export const docsEn: DocContent = {
     requirementsTitle: "System Requirements",
     requirements: [
       "macOS on Apple Silicon (arm64)",
-      "Ghostty terminal emulator installed",
+      "Ghostty or native macOS Terminal.app installed",
       "Rust & Cargo toolchain (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
     ],
     steps: [
@@ -418,7 +418,7 @@ export const docsEn: DocContent = {
         title: "4. Turn on the daemon",
         command: "boopaste on",
         notes:
-          "Loads the daemon via launchd. Click 'Allow' on the macOS Input Monitoring prompt. Now copy an image and hit ⌘V in Ghostty!",
+          "Loads the daemon via launchd. Click 'Allow' on the macOS Input Monitoring prompt. Now copy an image and hit ⌘V in Ghostty or Terminal!",
       },
     ],
   },
@@ -466,7 +466,7 @@ export const docsPt: DocContent = {
   subtitle:
     "Manual técnico e referência completa do boopaste: o que cada comando faz, arquitetura interna em Rust, interceptação de eventos no macOS e daemon launchd.",
   quickSummary:
-    "O boopaste roda silenciosamente como um LaunchAgent no macOS. Ao apertar ⌘V dentro do Ghostty com uma imagem copiada, ele salva a imagem como PNG em disco e cola o caminho absoluto do arquivo no seu terminal.",
+    "O boopaste roda silenciosamente como um LaunchAgent no macOS. Ao apertar ⌘V dentro do Ghostty ou do Terminal nativo com uma imagem copiada, ele salva a imagem como PNG em disco e cola o caminho absoluto do arquivo no seu terminal.",
   tocTitle: "Índice de Tópicos",
   sections: [
     { id: "overview", title: "Visão Geral & Motivação", tag: "01" },
@@ -486,10 +486,10 @@ export const docsPt: DocContent = {
       title: "A Fricção do Clipboard",
       beforeTitle: "Sem o boopaste",
       beforeBody:
-        "⌘C no print → abre o Ghostty → ⌘V → nada acontece ou sai lixo → vai no Finder → arrasta o arquivo para o terminal.",
+        "⌘C no print → abre o terminal (Ghostty / Terminal.app) → ⌘V → nada acontece ou sai lixo → vai no Finder → arrasta o arquivo para o terminal.",
       afterTitle: "Com o boopaste",
       afterBody:
-        "⌘C no print → abre o Ghostty → ⌘V → /tmp/boopaste/clip_1726345678123.png é colado instantaneamente. A imagem original volta ao clipboard 200ms depois.",
+        "⌘C no print → abre o terminal (Ghostty / Terminal.app) → ⌘V → /tmp/boopaste/clip_1726345678123.png é colado instantaneamente. A imagem original volta ao clipboard 200ms depois.",
     },
     keyBenefitsTitle: "Princípios de Design",
     keyBenefits: [
@@ -498,8 +498,8 @@ export const docsPt: DocContent = {
         desc: "Sem ícone na menu bar, sem ícone no Dock (LSUIElement + LSBackgroundOnly), sem consumo desnecessário de memória. Apenas um binário nativo e ultra-rápido.",
       },
       {
-        title: "Isolado exclusivamente para o Ghostty",
-        desc: "Consulta a API Cocoa NSWorkspace para inspecionar o app em foco. O ⌘V no Chrome, WhatsApp, Slack, Figma ou qualquer outro app fica 100% inalterado.",
+        title: "Isolado exclusivamente para terminais suportados",
+        desc: "Consulta a API Cocoa NSWorkspace para inspecionar o app em foco. Só age no Ghostty e no Terminal nativo do macOS. O ⌘V no Chrome, WhatsApp, Slack, Figma ou qualquer outro app fica 100% inalterado.",
       },
       {
         title: "Swap transitório com restauração automática",
@@ -527,7 +527,7 @@ export const docsPt: DocContent = {
         num: "02",
         title: "Checagem do Aplicativo em Foco",
         code: "frontmost.rs → NSWorkspace",
-        desc: "Consulta o bundle identifier do app em foco via Cocoa. Se não for 'com.mitchellh.ghostty', o boopaste sai de imediato sem encostar no clipboard.",
+        desc: "Consulta o bundle identifier do app em foco via Cocoa. Se não for 'com.mitchellh.ghostty' ou 'com.apple.Terminal', o boopaste sai de imediato sem encostar no clipboard.",
       },
       {
         num: "03",
@@ -538,8 +538,8 @@ export const docsPt: DocContent = {
       {
         num: "04",
         title: "O Terminal Cola o Caminho",
-        code: "OS → Ghostty Terminal",
-        desc: "O evento original do ⌘V prossegue para o Ghostty, que lê o clipboard como texto e recebe o caminho válido do arquivo PNG salvo.",
+        code: "OS → Terminal (Ghostty / Terminal.app)",
+        desc: "O evento original do ⌘V prossegue para o terminal ativo, que lê o clipboard como texto e recebe o caminho válido do arquivo PNG salvo.",
       },
       {
         num: "05",
@@ -555,15 +555,15 @@ export const docsPt: DocContent = {
 [CGEventTap em eventtap.rs] ── (Não é ⌘+V) ───────────► [Passa direto sem tocar]
         │ (⌘+V detectado)
         ▼
-[Ghostty está em foco?] ───── (Não, outro app) ───────► [Passa direto sem tocar]
-        │ (Sim: com.mitchellh.ghostty)
+[Terminal suportado em foco?] ─ (Não, outro app) ─────► [Passa direto sem tocar]
+        │ (Sim: Ghostty / Terminal.app)
         ▼
 [Clipboard tem imagem?] ───── (Não, texto/vazio) ────► [Passa direto sem tocar]
         │ (Sim, ImageData encontrada)
         ▼
 [1. Grava /tmp/boopaste/clip_<ts>.png]
 [2. Coloca caminho do arquivo no clipboard]
-[3. Evento ⌘+V entra no Ghostty (cola o path)]
+[3. Evento ⌘+V entra no terminal (cola o path)]
 [4. Thread em background: espera 200ms → restaura imagem original no clipboard]`,
   },
   commands: {
@@ -674,8 +674,8 @@ export const docsPt: DocContent = {
         description: "Consulta a API NSWorkspace da Apple para inspecionar qual janela está ativa no momento.",
         highlights: [
           "Usa objc2-app-kit para chamar [NSWorkspace sharedWorkspace].frontmostApplication.",
-          "Compara o bundleIdentifier com 'com.mitchellh.ghostty'.",
-          "Estrutura modular preparada para adicionar novos terminais (ex: Terminal nativo) facilmente.",
+          "Compara o bundleIdentifier com 'com.mitchellh.ghostty' e 'com.apple.Terminal'.",
+          "Estrutura modular preparada para adicionar novos terminais facilmente.",
         ],
       },
       {
@@ -706,7 +706,7 @@ export const docsPt: DocContent = {
         description: "Conecta a escuta do event tap com a checagem do app e a troca do clipboard.",
         highlights: [
           "Inicia eventtap::run() e mantém a thread rodando o CFRunLoop.",
-          "Dispara clipboard::swap_image_for_path() exclusivamente quando is_ghostty_frontmost() retorna true.",
+          "Dispara clipboard::swap_image_for_path() exclusivamente quando is_supported_terminal_frontmost() retorna true.",
         ],
       },
     ],
@@ -745,7 +745,7 @@ export const docsPt: DocContent = {
     requirementsTitle: "Requisitos do Sistema",
     requirements: [
       "macOS em processadores Apple Silicon (arm64)",
-      "Emulador de terminal Ghostty instalado",
+      "Ghostty ou Terminal.app nativo do macOS",
       "Rust & Cargo (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
     ],
     steps: [
@@ -769,7 +769,7 @@ export const docsPt: DocContent = {
         title: "4. Ligar o daemon",
         command: "boopaste on",
         notes:
-          "Inicia o serviço via launchd. Clique em 'Permitir' no alerta de Monitoramento de Entrada. Pronto: copie qualquer print e dê ⌘V no Ghostty!",
+          "Inicia o serviço via launchd. Clique em 'Permitir' no alerta de Monitoramento de Entrada. Pronto: copie qualquer print e dê ⌘V no Ghostty ou no Terminal!",
       },
     ],
   },
@@ -777,7 +777,7 @@ export const docsPt: DocContent = {
     tag: "07 / Diagnóstico & Logs",
     title: "Solução de Problemas & Diagnóstico",
     description:
-      "Se ao apertar ⌘V no Ghostty o caminho da imagem não for colado, verifique este roteiro de diagnóstico.",
+      "Se ao apertar ⌘V no terminal o caminho da imagem não for colado, verifique este roteiro de diagnóstico.",
     items: [
       {
         issue: "1. Verificar se o daemon está rodando",

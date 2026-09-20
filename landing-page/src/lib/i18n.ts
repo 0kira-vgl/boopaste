@@ -31,7 +31,7 @@ const en = {
       },
       {
         title: "Frontmost app check",
-        body: "Before doing anything, boopaste checks which app is focused via NSWorkspace. It only acts when that app is Ghostty (more terminals coming).",
+        body: "Before doing anything, boopaste checks which app is focused via NSWorkspace. It only acts when that app is Ghostty or macOS Terminal (more terminals coming).",
       },
       {
         title: "Swap and restore",
@@ -43,14 +43,10 @@ const en = {
   },
   terminals: {
     label: "terminals",
-    ghostty: { status: "live" },
-    native: {
-      status: "soon",
-      line1: "native integration in progress",
-      line2: "next in line, right after Ghostty",
-    },
+    title: "ghostty / terminal",
+    status: "live",
     closingPre:
-      "Ghostty support ships today. Native macOS Terminal.app is next, and the frontmost-app check in",
+      "Ghostty and native macOS Terminal.app are supported out of the box. The frontmost-app check in",
     closingPost: "is built to extend, not rewrite, for each new terminal.",
   },
   openSource: {
@@ -102,7 +98,7 @@ const pt: typeof en = {
       },
       {
         title: "Checagem do app em foco",
-        body: "Antes de fazer qualquer coisa, o boopaste checa qual app está em foco via NSWorkspace. Só age quando esse app é o Ghostty (mais terminais a caminho).",
+        body: "Antes de fazer qualquer coisa, o boopaste checa qual app está em foco via NSWorkspace. Só age quando esse app é o Ghostty ou o Terminal do macOS (mais terminais a caminho).",
       },
       {
         title: "Swap e restore",
@@ -114,14 +110,10 @@ const pt: typeof en = {
   },
   terminals: {
     label: "terminais",
-    ghostty: { status: "ativo" },
-    native: {
-      status: "em breve",
-      line1: "integração nativa em desenvolvimento",
-      line2: "próximo na fila, logo depois do Ghostty",
-    },
+    title: "ghostty / terminal",
+    status: "ativo",
     closingPre:
-      "O suporte ao Ghostty já funciona hoje. O Terminal nativo do macOS é o próximo, e a checagem de app em foco em",
+      "O suporte ao Ghostty e ao Terminal nativo do macOS já funciona hoje. A checagem de app em foco em",
     closingPost: "foi feita pra estender, não reescrever, a cada novo terminal.",
   },
   openSource: {

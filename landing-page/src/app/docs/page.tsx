@@ -110,7 +110,7 @@ export default function DocsPage() {
             </div>
 
             <div className="rounded-lg border border-foreground/10 bg-foreground/[0.02] p-3 font-mono text-[11px] text-foreground/60 leading-relaxed">
-              <span className="text-foreground font-semibold">Ghostty only:</span> macOS Apple Silicon arm64 native.
+              <span className="text-foreground font-semibold">Ghostty & Terminal.app:</span> macOS Apple Silicon arm64 native.
             </div>
           </div>
         </aside>
