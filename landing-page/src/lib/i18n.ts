@@ -44,7 +44,6 @@ const en = {
   terminals: {
     label: "terminals",
     title: "ghostty / terminal",
-    status: "live",
     closingPre:
       "Ghostty and native macOS Terminal.app are supported out of the box. The frontmost-app check in",
     closingPost: "is built to extend, not rewrite, for each new terminal.",
@@ -111,7 +110,6 @@ const pt: typeof en = {
   terminals: {
     label: "terminais",
     title: "ghostty / terminal",
-    status: "ativo",
     closingPre:
       "O suporte ao Ghostty e ao Terminal nativo do macOS já funciona hoje. A checagem de app em foco em",
     closingPost: "foi feita pra estender, não reescrever, a cada novo terminal.",

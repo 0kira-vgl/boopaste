@@ -1,5 +1,5 @@
 // Swap-and-restore do clipboard: quando há uma imagem, salva como PNG em
-// disco e substitui o clipboard pelo caminho do arquivo — depois restaura a
+// disco e substitui o clipboard pelo caminho do arquivo - depois restaura a
 // imagem original, para não quebrar o paste normal em outros apps que
 // compartilham o mesmo clipboard do sistema.
 
@@ -15,14 +15,14 @@ use image::RgbaImage;
 
 /// Dá tempo do terminal ler o path do clipboard antes de restaurarmos a
 /// imagem original. É uma margem fixa, não um sinal real de "já leu" (a API
-/// de clipboard não expõe isso) — 400ms cobre folgadamente o caso comum, mas
+/// de clipboard não expõe isso) - 400ms cobre folgadamente o caso comum, mas
 /// em máquinas muito lentas ainda é teoricamente possível a restauração
 /// acontecer antes do paste. Preferível a um valor menor, que falhava com
 /// mais frequência em terminais sob carga.
 const RESTORE_DELAY: Duration = Duration::from_millis(400);
 
 /// PNGs mais velhos que isso são apagados na próxima vez que uma imagem é
-/// colada — sem isso, o diretório cresce sem limite enquanto o daemon roda.
+/// colada - sem isso, o diretório cresce sem limite enquanto o daemon roda.
 const MAX_FILE_AGE: Duration = Duration::from_secs(10 * 60);
 
 /// Contador incremental somado ao timestamp no nome do arquivo, pra garantir
@@ -31,7 +31,7 @@ const MAX_FILE_AGE: Duration = Duration::from_secs(10 * 60);
 /// excluir colisão).
 static FILE_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-/// Diretório de destino dos PNGs, exclusivo do usuário atual — ao contrário
+/// Diretório de destino dos PNGs, exclusivo do usuário atual - ao contrário
 /// de `/tmp`, `~/Library/Caches` não é compartilhado entre usuários da
 /// máquina, e ainda assim é criado com permissão 0700 (veja
 /// `restrict_to_owner`) pra reforçar isso. Evita que outro usuário local
@@ -82,7 +82,7 @@ fn save_png(image: &ImageData) -> Option<PathBuf> {
     Some(path)
 }
 
-/// Restringe o acesso ao dono do arquivo (0600) ou diretório (0700) — evita
+/// Restringe o acesso ao dono do arquivo (0600) ou diretório (0700) - evita
 /// que outros usuários locais da máquina leiam imagens coladas via boopaste,
 /// que podem conter informação sensível (prints de tela, dados privados).
 fn restrict_to_owner(path: &Path) {

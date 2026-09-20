@@ -6,8 +6,21 @@ mod launchagent;
 
 use clap::{Parser, Subcommand};
 
+const BANNER: &str = r#"
+      .-""-.
+     /  o o \
+    :    ..   :    boopaste
+     \  __  /       paste clipboard images as a file path,
+      `----`        in Ghostty and Terminal.app
+"#;
+
 #[derive(Parser)]
-#[command(name = "boopaste", version, about = "Cola imagens do clipboard como caminho de arquivo, no Ghostty e no Terminal")]
+#[command(
+    name = "boopaste",
+    version,
+    about = "Paste clipboard images as a file path, in Ghostty and Terminal.app",
+    long_about = BANNER
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -15,19 +28,19 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Liga o boopaste (roda em background, sobrevive a reboot)
+    /// Turn boopaste on (runs in the background, survives reboots)
     On,
-    /// Desliga o boopaste
+    /// Turn boopaste off
     Off,
-    /// Mostra o status atual (ligado/desligado)
+    /// Show the current status (running / stopped)
     Status,
-    /// Instala o LaunchAgent (não liga automaticamente)
+    /// Install the LaunchAgent (does not turn it on automatically)
     Init,
-    /// Abre a tela de Monitoramento de Entrada, caso o alerta automático não apareça
+    /// Open the Input Monitoring settings screen, in case the system prompt never showed up
     Permissions,
-    /// Remove o LaunchAgent e todos os arquivos instalados
+    /// Remove the LaunchAgent and every file boopaste installed
     Uninstall,
-    /// Roda o daemon em primeiro plano (uso interno do LaunchAgent)
+    /// Run the daemon in the foreground (internal use by the LaunchAgent)
     #[command(hide = true)]
     Run,
 }

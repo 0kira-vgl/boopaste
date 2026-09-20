@@ -259,7 +259,7 @@ export function ThreeGhostSwarm() {
       // Distribuição em 3D: X de -40 a +40, Y de +30 até -160, Z de -25 a +15
       starPositions[i * 3 + 0] = (Math.random() - 0.5) * 80;
       starPositions[i * 3 + 1] = 30 - Math.random() * 190;
-      starPositions[i * 3 + 2] = -25 + Math.random() * 35;
+      starPositions[i * 3 + 2] = -40 + Math.random() * 30;
 
       starPhases[i] = Math.random() * Math.PI * 2;
       starSizes[i] = 1.2 + Math.random() * 2.8;
