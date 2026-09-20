@@ -44,9 +44,9 @@ export function InstallCommand({ compact = false }: { compact?: boolean }) {
       <div className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none">
         <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.03] px-3.5 py-2">
           <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
-            <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
-            <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
           </div>
           <button
             onClick={copy}

@@ -87,7 +87,7 @@ export function DistortText({
     <span
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      className={cn("inline-block", className)}
+      className={cn("inline", className)}
     >
       {words.map((word, wi) => (
         <Fragment key={wi}>

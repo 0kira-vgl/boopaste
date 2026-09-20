@@ -1,55 +1,48 @@
 "use client";
 
-// Demo animada do fluxo real do boopaste: copiar uma imagem, apertar Cmd+V
+// Demo minimalista do fluxo real do boopaste: copiar uma imagem, apertar Cmd+V
 // dentro do Ghostty, e ver o path do PNG aparecer no prompt — reflete
 // exatamente o que src/daemon.rs + src/eventtap.rs fazem no dia a dia.
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/components/locale-provider";
 
-const STEPS = [
-  { text: "", delay: 0 },
-  { text: "⌘V", delay: 700 },
-  { text: "⌘V\n/tmp/boopaste/2026-09-13-142301.png", delay: 900 },
-];
-
-function useTypingLoop(active: boolean) {
-  const [frame, setFrame] = useState(0);
-
-  useEffect(() => {
-    if (!active) return;
-    const timers = STEPS.map((step, i) =>
-      setTimeout(() => setFrame(i), step.delay + i * 1200)
-    );
-    const reset = setTimeout(
-      () => setFrame(0),
-      STEPS.reduce((a, s) => a + s.delay, 0) + 3200
-    );
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(reset);
-    };
-  }, [active, frame === 0]);
-
-  return STEPS[frame].text;
-}
-
 export function GhosttyDemo() {
   const { t } = useLocale();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [phase, setPhase] = useState<0 | 1 | 2 | 3>(0);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), {
-      threshold: 0.4,
-    });
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  const output = useTypingLoop(visible);
+  useEffect(() => {
+    if (!visible) return;
+
+    let timer: NodeJS.Timeout;
+
+    if (phase === 0) {
+      timer = setTimeout(() => setPhase(1), 1200);
+    } else if (phase === 1) {
+      timer = setTimeout(() => setPhase(2), 700);
+    } else if (phase === 2) {
+      timer = setTimeout(() => setPhase(3), 1200);
+    } else if (phase === 3) {
+      timer = setTimeout(() => setPhase(0), 3400);
+    }
+
+    return () => clearTimeout(timer);
+  }, [visible, phase]);
+
+  const filePath = "/tmp/boopaste/2026-09-19-142301.png";
 
   return (
     <div
@@ -57,10 +50,52 @@ export function GhosttyDemo() {
       className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none"
     >
       <TerminalChrome title="ghostty" status="online" statusLabel={t.terminals.ghostty.status} />
-      <div className="h-40 whitespace-pre-wrap p-4 font-mono text-xs text-foreground/90">
-        <span className="text-foreground/40 select-none">$ </span>
-        {output}
-        <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
+      <div className="flex h-40 flex-col gap-1.5 p-4 font-mono text-xs leading-relaxed text-foreground/90 overflow-hidden select-none">
+        {/* Phase 0: Prompt inicial limpo */}
+        {phase === 0 && (
+          <div>
+            <span className="text-foreground/40 select-none">$ </span>
+            <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
+          </div>
+        )}
+
+        {/* Phase 1: ⌘V pressionado */}
+        {phase === 1 && (
+          <div>
+            <span className="text-foreground/40 select-none">$ </span>
+            <span className="rounded border border-foreground/30 bg-foreground/10 px-1 py-0.5 text-[11px] text-foreground font-mono">
+              ⌘V
+            </span>
+            <span className="animate-pulse text-emerald-600 dark:text-emerald-400 ml-1">▮</span>
+          </div>
+        )}
+
+        {/* Phase 2: Caminho colado no prompt */}
+        {phase === 2 && (
+          <div className="break-all">
+            <span className="text-foreground/40 select-none">$ </span>
+            <span className="text-foreground/90">{filePath}</span>
+            <span className="animate-pulse text-emerald-600 dark:text-emerald-400 ml-0.5">▮</span>
+          </div>
+        )}
+
+        {/* Phase 3: Confirmação do daemon e novo prompt pronto */}
+        {phase === 3 && (
+          <>
+            <div className="break-all text-foreground/90">
+              <span className="text-foreground/40 select-none">$ </span>
+              <span>{filePath}</span>
+            </div>
+            <div className="text-[11px] text-foreground/50">
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">[boopaste] </span>
+              <span>image/png → file path (142 KB)</span>
+            </div>
+            <div className="pt-0.5">
+              <span className="text-foreground/40 select-none">$ </span>
+              <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -73,7 +108,10 @@ export function NativeTerminalCard() {
     <div className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none opacity-70">
       <TerminalChrome title="terminal" status="soon" statusLabel={t.terminals.native.status} />
       <div className="flex h-40 flex-col items-start gap-2 p-4 font-mono text-xs text-foreground/60">
-        <span><span className="text-foreground/40 select-none">$ </span>{t.terminals.native.line1}</span>
+        <span>
+          <span className="text-foreground/40 select-none">$ </span>
+          {t.terminals.native.line1}
+        </span>
         <span className="text-foreground/40">{t.terminals.native.line2}</span>
       </div>
     </div>
@@ -92,9 +130,9 @@ function TerminalChrome({
   return (
     <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.03] px-3.5 py-2">
       <div className="flex gap-1.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
-        <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
-        <span className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
       </div>
       <span className="font-mono text-[10px] uppercase tracking-widest text-foreground/50">
         {title}
