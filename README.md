@@ -38,6 +38,27 @@ into the binary.
 
 ## Installation
 
+Pick whichever method you're comfortable with, all three end up in the same
+place.
+
+### Homebrew
+
+```bash
+brew tap 0kira-vgl/boopaste
+brew install boopaste
+boopaste init
+```
+
+### curl
+
+```bash
+curl -fsSL https://boopaste.vercel.app/install.sh | sh
+```
+
+Downloads the latest release, extracts it, and runs `boopaste init` for you.
+
+### From source
+
 ```bash
 git clone https://github.com/0kira-vgl/boopaste.git
 cd boopaste

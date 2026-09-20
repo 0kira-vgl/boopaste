@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   title: "boopaste · paste images as file paths, in your terminal",
   description:
     "A macOS daemon that turns clipboard images into real PNG file paths when you paste in Ghostty or macOS Terminal. Open source, MIT licensed.",
-  metadataBase: new URL("https://boopaste.dev"),
+  // Sem domínio próprio ainda, aponta pro deploy da Vercel; trocar quando
+  // boopaste.dev existir de verdade.
+  metadataBase: new URL("https://boopaste.vercel.app"),
   openGraph: {
     title: "boopaste",
     description: "Paste images as file paths, only in your terminal.",
