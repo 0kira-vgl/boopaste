@@ -13,7 +13,7 @@ pub fn run() {
 
     if installed.is_err() {
         eprintln!(
-            "boopaste: falha ao instalar o event tap (verifique a permissão de Input Monitoring/Accessibility)"
+            "[x] boopaste: failed to install the event tap (check the Input Monitoring/Accessibility permission)"
         );
         std::process::exit(1);
     }

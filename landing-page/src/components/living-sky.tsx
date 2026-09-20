@@ -32,15 +32,21 @@ export function LivingSky() {
     const starColors = ["#ffffff", "#00FF66", "#00F0FF", "#88ffaa"];
     const generated: Star[] = Array.from({ length: 140 }, (_, i) => {
       // Pseudorandom com seed previsível
+      // Distribui estrelas no espaço sideral priorizando as margens laterais
+      // para manter o corredor central de leitura (textos e badges) limpo e sem distrações
       const seed1 = (i * 9301 + 49297) % 233280;
-      const x = (seed1 / 233280) * 100;
+      const rawX = (seed1 / 233280) * 100;
+      let x = rawX;
+      if (rawX > 25 && rawX < 75) {
+        x = rawX < 50 ? rawX * 0.42 : 78 + (rawX - 50) * 0.44;
+      }
       const seed2 = (i * 233280 + 9301) % 104729;
       const y = (seed2 / 104729) * 100;
-      const size = i % 8 === 0 ? 3.5 : i % 3 === 0 ? 2.5 : 1.5;
+      const size = i % 8 === 0 ? 3 : i % 3 === 0 ? 2 : 1.2;
       const color = i % 6 === 0 ? starColors[1] : i % 11 === 0 ? starColors[2] : starColors[0];
-      const duration = 1.6 + ((i * 37) % 30) / 10; // 1.6s a 4.6s
-      const delay = ((i * 53) % 40) / 10; // 0s a 4s
-      const glow = i % 5 === 0;
+      const duration = 2.0 + ((i * 37) % 30) / 10;
+      const delay = ((i * 53) % 40) / 10;
+      const glow = i % 7 === 0;
 
       return { id: i, x, y, size, color, duration, delay, glow };
     });

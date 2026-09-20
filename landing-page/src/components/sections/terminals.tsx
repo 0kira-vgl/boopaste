@@ -16,7 +16,7 @@ export function Terminals() {
       </div>
       <p className="text-sm leading-relaxed text-foreground/50">
         <DistortText>{t.terminals.closingPre}</DistortText>{" "}
-        <code className="rounded border border-foreground/15 bg-foreground/5 px-1.5 py-0.5 font-mono text-xs text-foreground/80">
+        <code className="relative z-10 inline-block rounded border border-foreground/20 bg-background px-2 py-0.5 font-mono text-xs text-foreground/90 shadow-xs">
           frontmost.rs
         </code>{" "}
         <DistortText>{t.terminals.closingPost}</DistortText>

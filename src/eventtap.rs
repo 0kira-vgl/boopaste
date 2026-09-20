@@ -12,7 +12,7 @@ const K_IOHID_REQUEST_TYPE_LISTEN_EVENT: u32 = 1;
 
 #[link(name = "IOKit", kind = "framework")]
 unsafe extern "C" {
-    /// Dispara o alerta nativo do macOS pedindo Monitoramento de Entrada —
+    /// Dispara o alerta nativo do macOS pedindo Monitoramento de Entrada -
     /// o mesmo tipo de prompt com botão "Permitir" que câmera/microfone
     /// usam. Evita mandar o usuário pro System Settings manualmente: só cai
     /// nisso se o pedido já tiver sido negado antes, caso em que essa
@@ -25,7 +25,7 @@ unsafe extern "C" {
     /// O macOS desativa um event tap sozinho se o callback demorar demais
     /// pra responder (ou por pedido explícito do usuário), entregando um
     /// evento `TapDisabledByTimeout`/`TapDisabledByUserInput` no lugar dos
-    /// eventos normais — sem isso, o tap fica morto pro resto da execução e
+    /// eventos normais - sem isso, o tap fica morto pro resto da execução e
     /// o Cmd+V some silenciosamente depois de um tempo. `proxy` é o mesmo
     /// mach port do tap, só que repassado ao callback com outro tipo
     /// opaco; a função não é exportada publicamente pelo crate `core-graphics`
@@ -36,7 +36,7 @@ unsafe extern "C" {
 /// Instala um event tap global e bloqueia rodando o run loop da thread atual.
 ///
 /// `on_paste` é chamado de forma síncrona toda vez que Cmd+V é pressionado,
-/// antes do evento ser repassado ao app em foco — dando a ele a chance de
+/// antes do evento ser repassado ao app em foco - dando a ele a chance de
 /// trocar o conteúdo do clipboard a tempo de o paste já pegar o novo valor.
 /// O evento nunca é descartado: só interceptamos o clipboard, não o gesto
 /// de paste em si, que deve continuar funcionando normalmente em todo app.

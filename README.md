@@ -1,22 +1,42 @@
 # boopaste
 
-Cola imagens do clipboard como caminho de arquivo — só dentro do
-[Ghostty](https://ghostty.org) e do Terminal.app nativo do macOS.
+```
+      .-""-.
+     /  o o \
+    :    ..   :    boopaste
+     \  __  /       paste clipboard images as a file path
+      `----`
+```
 
-Terminais não recebem bytes de imagem via paste, só texto. Quando você copia
-um print e dá Cmd+V dentro de um desses terminais, o `boopaste` intercepta o
-atalho, salva a imagem como PNG em disco e troca o conteúdo do clipboard pelo
-caminho do arquivo — assim o paste cola um path válido, que ferramentas como
-o Claude Code interpretam como imagem. Fora deles o Cmd+V funciona normal,
-sem nenhuma interferência.
+Paste clipboard images as a file path, inside [Ghostty](https://ghostty.org)
+and macOS's native Terminal.app.
 
-## Requisitos
+Terminals cannot receive image bytes through paste, only text. So when you
+copy a screenshot and hit Cmd+V inside one of the supported terminals,
+`boopaste` intercepts the shortcut, saves the image to disk as a PNG, and
+swaps the clipboard content for the file's path. The paste then drops a
+valid path, which tools like Claude Code interpret as an image. Everywhere
+else, Cmd+V is left alone: no interception, no side effects.
 
-- macOS (Apple Silicon)
-- [Ghostty](https://ghostty.org) ou o Terminal.app (já vem no macOS)
-- [Rust](https://www.rust-lang.org) (só se for compilar a partir do código-fonte)
+## Why this exists
 
-## Instalação
+Tools like Claude Code (and other CLI agents) accept images as file paths
+in a prompt, but a plain Cmd+V from the system clipboard only ever gives a
+terminal raw text. `boopaste` bridges that gap system-wide, without you
+having to save the screenshot manually and type the path yourself.
+
+## Requirements
+
+- macOS on Apple Silicon (arm64)
+- [Ghostty](https://ghostty.org) or Terminal.app (ships with macOS)
+- [Rust](https://www.rust-lang.org) toolchain, only if you're building from
+  source (get it via [rustup](https://rustup.rs))
+
+`boopaste` doesn't depend on any other third-party app or CLI tool at
+runtime. Everything it needs is either part of macOS or statically linked
+into the binary.
+
+## Installation
 
 ```bash
 git clone https://github.com/0kira-vgl/boopaste.git
@@ -25,56 +45,79 @@ cargo build --release
 ./target/release/boopaste init
 ```
 
-O `init` instala o `boopaste` como um app (`Boopaste.app`) em
-`~/Library/Application Support/boopaste/`, registra um LaunchAgent e cria um
-link simbólico em `~/.local/bin/boopaste` — depois disso o comando
-`boopaste` já funciona direto no terminal (adicione `~/.local/bin` ao seu
-`PATH` se ainda não estiver).
+`init` packages the binary as a minimal `.app` bundle
+(`Boopaste.app`), installs it in
+`~/Library/Application Support/boopaste/`, registers a LaunchAgent, and
+creates a symlink at `~/.local/bin/boopaste`. After that, the `boopaste`
+command works directly from your shell (make sure `~/.local/bin` is in
+your `PATH`).
 
-## Comandos
+`init` only installs things; it doesn't turn boopaste on. Run
+`boopaste on` next to actually start it.
 
-| Comando | O que faz |
+## Commands
+
+| Command | What it does |
 |---|---|
-| `boopaste init` | Instala o binário e o LaunchAgent. Não liga automaticamente. |
-| `boopaste on` | Liga o boopaste (roda em background, sobrevive a reboot). |
-| `boopaste off` | Desliga o boopaste. |
-| `boopaste status` | Mostra se está rodando ou parado. |
-| `boopaste permissions` | Abre a tela de Monitoramento de Entrada do macOS, caso o alerta automático de permissão não apareça. |
-| `boopaste uninstall` | Remove tudo: LaunchAgent, binário instalado, link simbólico e as permissões concedidas no TCC (Acessibilidade, Monitoramento de Entrada). |
+| `boopaste init` | Installs the binary and the LaunchAgent. Does not turn it on automatically. |
+| `boopaste on` | Turns boopaste on (runs in the background, survives reboots). |
+| `boopaste off` | Turns boopaste off. |
+| `boopaste status` | Shows whether it's running or stopped. |
+| `boopaste permissions` | Opens macOS's Input Monitoring settings screen, in case the automatic permission prompt never showed up. |
+| `boopaste uninstall` | Removes everything: LaunchAgent, installed binary, symlink, image cache, and the Accessibility/Input Monitoring permissions granted in TCC. |
 
-## Permissões do macOS
+## macOS permissions
 
-Pra interceptar o Cmd+V globalmente, o macOS exige que o `boopaste` tenha
-permissão de **Monitoramento de Entrada** e **Acessibilidade**
-(Configurações do Sistema → Privacidade e Segurança).
+To intercept Cmd+V globally, macOS requires `boopaste` to have **Input
+Monitoring** and **Accessibility** permission (System Settings > Privacy &
+Security).
 
-Na primeira vez que você roda `boopaste on`, deve aparecer um alerta nativo
-pedindo essa permissão — é só clicar em Permitir. Se o alerta não aparecer
-(ou se você tiver clicado em "Não Permitir" antes, caso em que o macOS não
-pergunta de novo), rode `boopaste permissions` para abrir a tela certa
-manualmente.
+The first time you run `boopaste on`, a native alert should show up asking
+for that permission, just click Allow. If the alert doesn't show up (or you
+already clicked "Don't Allow" once, in which case macOS won't ask again),
+run `boopaste permissions` to open the right settings screen manually.
 
-> Como o binário é assinado localmente (sem certificado pago da Apple), toda
-> vez que ele for recompilado a permissão concedida deixa de valer e precisa
-> ser reconcedida uma vez — isso é uma limitação do macOS para binários sem
-> assinatura de um Apple Developer ID, não algo controlável via código.
+> Since the binary is signed locally (no paid Apple Developer certificate),
+> every time it's rebuilt the granted permission stops being valid and has
+> to be granted again. This is a macOS limitation for binaries without a
+> Developer ID signature, not something fixable in code.
 
-## Como funciona
+## How it works
 
-- **`eventtap`**: instala um `CGEventTap` global (via `core-graphics`) que
-  escuta apenas o atalho Cmd+V, em toda a sessão do usuário.
-- **`frontmost`**: verifica se o app em foco é um dos terminais suportados
-  (Ghostty ou Terminal.app, via `NSWorkspace`) antes de agir — em qualquer
-  outro app o Cmd+V passa direto, sem swap.
-- **`clipboard`**: se houver uma imagem no clipboard, salva como PNG em
-  `/tmp/boopaste/`, substitui o clipboard pelo caminho do arquivo, e restaura
-  a imagem original ~200ms depois (pra não quebrar o paste normal em outros
-  apps que compartilhem o mesmo clipboard).
-- **`launchagent`**: empacota o binário num `.app` mínimo, cuida da
-  instalação/remoção do LaunchAgent (`launchctl load/unload -w`, persistindo
-  o estado ligado/desligado entre reboots) e da limpeza das permissões TCC no
-  uninstall.
+- **`eventtap`**: installs a global `CGEventTap` (via `core-graphics`) that
+  listens only for the Cmd+V shortcut, across the whole user session.
+- **`frontmost`**: checks whether the focused app is one of the supported
+  terminals (Ghostty or Terminal.app, via `NSWorkspace`) before doing
+  anything. In any other app, Cmd+V passes straight through, no swap.
+- **`clipboard`**: if there's an image in the clipboard, saves it as a PNG
+  under `~/Library/Caches/boopaste/`, replaces the clipboard content with
+  the file's path, and restores the original image about 400ms later (so
+  paste keeps working normally in other apps sharing the same system
+  clipboard). Old PNGs are cleaned up automatically as new ones are saved.
+- **`launchagent`**: packages the binary into a minimal `.app` bundle,
+  handles installing/removing the LaunchAgent (`launchctl load/unload -w`,
+  persisting the on/off state across reboots), and cleans up the TCC
+  permissions on uninstall.
 
-## Licença
+## Project layout
 
-MIT — veja [LICENSE](LICENSE).
+```
+src/
+  main.rs         CLI definition (clap) and command dispatch
+  daemon.rs       wires the event tap to the clipboard swap logic
+  eventtap.rs     global CGEventTap that listens for Cmd+V
+  frontmost.rs    checks which app is currently focused
+  clipboard.rs    image detection, PNG save, clipboard swap and restore
+  launchagent.rs  .app bundling, LaunchAgent, install/uninstall, TCC
+```
+
+## Contributing
+
+Issues and pull requests are welcome. If you want to add support for
+another terminal, the only two spots that need to know about it are
+`SUPPORTED_TERMINAL_BUNDLE_IDS` in `src/frontmost.rs` and the terminal's
+name in the CLI help text.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
