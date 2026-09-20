@@ -101,11 +101,11 @@ const GHOSTS: GhostDef[] = [
       "   ~ ~ ~   "
     ],
     zoneY: -92,
-    x: -14,
-    z: 6,
-    scale: 7.2,
+    x: -18,
+    z: 4,
+    scale: 5.5,
     floatSpeed: 0.8,
-    driftRange: 1.9,
+    driftRange: 1.2,
     glowColor: "#00FF66",
   },
 

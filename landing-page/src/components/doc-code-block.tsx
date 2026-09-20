@@ -30,9 +30,9 @@ export function DocCodeBlock({
       <div className="flex items-center justify-between border-b border-foreground/10 bg-foreground/[0.03] px-3.5 py-2">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-foreground/20" />
-            <span className="h-2 w-2 rounded-full bg-foreground/20" />
-            <span className="h-2 w-2 rounded-full bg-foreground/20" />
+            <span className="h-2 w-2 rounded-full bg-[#ff5f56]" />
+            <span className="h-2 w-2 rounded-full bg-[#ffbd2e]" />
+            <span className="h-2 w-2 rounded-full bg-[#27c93f]" />
           </div>
           <span className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">{language}</span>
         </div>
