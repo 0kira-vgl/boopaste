@@ -1,13 +1,13 @@
 "use client";
 
 // Demo minimalista do fluxo real do boopaste: copiar uma imagem, apertar Cmd+V
-// dentro do Ghostty, e ver o path do PNG aparecer no prompt — reflete
+// dentro do Ghostty ou do macOS Terminal, e ver o path do PNG aparecer no prompt — reflete
 // exatamente o que src/daemon.rs + src/eventtap.rs fazem no dia a dia.
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/components/locale-provider";
 
-export function GhosttyDemo() {
+export function TerminalDemo() {
   const { t } = useLocale();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -42,31 +42,31 @@ export function GhosttyDemo() {
     return () => clearTimeout(timer);
   }, [visible, phase]);
 
-  const filePath = "/tmp/boopaste/2026-09-19-142301.png";
+  const filePath = "/tmp/boopaste/clip_1789926581766.png";
 
   return (
     <div
       ref={ref}
-      className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none"
+      className="w-full flex flex-col rounded-lg border border-foreground/20 bg-background/90 backdrop-blur-md shadow-md shadow-black/5 dark:shadow-none transition-all duration-300 hover:border-foreground/30 overflow-hidden"
     >
-      <TerminalChrome title="ghostty" status="online" statusLabel={t.terminals.ghostty.status} />
-      <div className="flex h-40 flex-col gap-1.5 p-4 font-mono text-xs leading-relaxed text-foreground/90 overflow-hidden select-none">
+      <TerminalChrome title={t.terminals.title} status="online" statusLabel={t.terminals.status} />
+      <div className="flex min-h-[190px] sm:min-h-[210px] flex-col justify-start gap-2.5 p-5 sm:p-6 font-mono text-xs sm:text-sm leading-relaxed text-foreground/90 select-none">
         {/* Phase 0: Prompt inicial limpo */}
         {phase === 0 && (
-          <div>
-            <span className="text-foreground/40 select-none">$ </span>
+          <div className="flex items-center gap-2">
+            <span className="text-foreground/40 select-none">$</span>
             <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
           </div>
         )}
 
         {/* Phase 1: ⌘V pressionado */}
         {phase === 1 && (
-          <div>
-            <span className="text-foreground/40 select-none">$ </span>
-            <span className="rounded border border-foreground/30 bg-foreground/10 px-1 py-0.5 text-[11px] text-foreground font-mono">
+          <div className="flex items-center gap-2">
+            <span className="text-foreground/40 select-none">$</span>
+            <span className="rounded border border-foreground/30 bg-foreground/10 px-1.5 py-0.5 text-xs text-foreground font-mono font-medium shadow-xs">
               ⌘V
             </span>
-            <span className="animate-pulse text-emerald-600 dark:text-emerald-400 ml-1">▮</span>
+            <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
           </div>
         )}
 
@@ -74,49 +74,35 @@ export function GhosttyDemo() {
         {phase === 2 && (
           <div className="break-all">
             <span className="text-foreground/40 select-none">$ </span>
-            <span className="text-foreground/90">{filePath}</span>
-            <span className="animate-pulse text-emerald-600 dark:text-emerald-400 ml-0.5">▮</span>
+            <span className="text-foreground/95 font-medium">{filePath}</span>
+            <span className="animate-pulse text-emerald-600 dark:text-emerald-400 ml-1">▮</span>
           </div>
         )}
 
         {/* Phase 3: Confirmação do daemon e novo prompt pronto */}
         {phase === 3 && (
-          <>
-            <div className="break-all text-foreground/90">
+          <div className="flex flex-col gap-2">
+            <div className="break-all text-foreground/95 font-medium">
               <span className="text-foreground/40 select-none">$ </span>
               <span>{filePath}</span>
             </div>
-            <div className="text-[11px] text-foreground/50">
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">[boopaste] </span>
+            <div className="text-[11px] sm:text-xs text-foreground/60 flex items-center gap-1.5 pl-3 border-l-2 border-emerald-500/40 py-0.5">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">[boopaste]</span>
               <span>image/png → file path (142 KB)</span>
             </div>
-            <div className="pt-0.5">
-              <span className="text-foreground/40 select-none">$ </span>
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-foreground/40 select-none">$</span>
               <span className="animate-pulse text-emerald-600 dark:text-emerald-400">▮</span>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-export function NativeTerminalCard() {
-  const { t } = useLocale();
-
-  return (
-    <div className="flex flex-col border border-foreground/20 bg-background/90 backdrop-blur-sm shadow-xs dark:shadow-none opacity-70">
-      <TerminalChrome title="terminal" status="soon" statusLabel={t.terminals.native.status} />
-      <div className="flex h-40 flex-col items-start gap-2 p-4 font-mono text-xs text-foreground/60">
-        <span>
-          <span className="text-foreground/40 select-none">$ </span>
-          {t.terminals.native.line1}
-        </span>
-        <span className="text-foreground/40">{t.terminals.native.line2}</span>
-      </div>
-    </div>
-  );
-}
+// Alias for compatibility
+export const GhosttyDemo = TerminalDemo;
 
 function TerminalChrome({
   title,
@@ -128,22 +114,22 @@ function TerminalChrome({
   statusLabel: string;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.03] px-3.5 py-2">
-      <div className="flex gap-1.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
+    <div className="flex items-center justify-between border-b border-foreground/15 bg-foreground/[0.04] px-4 py-2.5">
+      <div className="flex gap-2">
+        <span className="h-3 w-3 rounded-full bg-[#ff5f56]/90 transition-opacity hover:opacity-100" />
+        <span className="h-3 w-3 rounded-full bg-[#ffbd2e]/90 transition-opacity hover:opacity-100" />
+        <span className="h-3 w-3 rounded-full bg-[#27c93f]/90 transition-opacity hover:opacity-100" />
       </div>
-      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground/50">
+      <span className="font-mono text-xs uppercase tracking-widest text-foreground/60 font-medium">
         {title}
       </span>
       <span
         className={cn(
-          "font-mono text-[10px] uppercase tracking-widest flex items-center gap-1.5",
+          "font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5",
           status === "online" ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-foreground/40"
         )}
       >
-        <span className={cn("h-1.5 w-1.5 rounded-full", status === "online" ? "bg-emerald-500 animate-pulse" : "bg-foreground/30")} />
+        <span className={cn("h-2 w-2 rounded-full", status === "online" ? "bg-emerald-500 animate-pulse" : "bg-foreground/30")} />
         {statusLabel}
       </span>
     </div>

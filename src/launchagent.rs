@@ -21,8 +21,18 @@ const TCC_SERVICES: &[&str] = &["ListenEvent", "Accessibility", "PostEvent"];
 /// Entrada), em vez do ícone genérico de executável.
 const APP_ICON: &[u8] = include_bytes!("../assets/AppIcon.icns");
 
+/// Imprime uma mensagem de erro amigável e encerra o processo com código 1 —
+/// usado no lugar de `.expect()` em operações que podem falhar por motivos
+/// legítimos de ambiente (disco cheio, permissão negada, HOME ausente), pra
+/// não expor um panic com stack trace bruto pro usuário final.
+fn fail(msg: impl std::fmt::Display) -> ! {
+    eprintln!("boopaste: {msg}");
+    std::process::exit(1);
+}
+
 fn home_dir() -> PathBuf {
-    PathBuf::from(env::var("HOME").expect("variável de ambiente HOME não definida"))
+    let home = env::var("HOME").unwrap_or_else(|_| fail("variável de ambiente HOME não definida"));
+    PathBuf::from(home)
 }
 
 fn plist_path() -> PathBuf {
@@ -161,25 +171,29 @@ pub fn status() {
 /// Instala o binário (dentro de um `.app` mínimo) e o LaunchAgent (não liga
 /// automaticamente).
 pub fn install() {
-    let current_exe = env::current_exe().expect("não foi possível localizar o próprio binário");
+    let current_exe =
+        env::current_exe().unwrap_or_else(|e| fail(format!("não foi possível localizar o próprio binário: {e}")));
 
-    fs::create_dir_all(bundle_macos_dir()).expect("falha ao criar o bundle do app");
+    fs::create_dir_all(bundle_macos_dir()).unwrap_or_else(|e| fail(format!("falha ao criar o bundle do app: {e}")));
     fs::write(bundle_path().join("Contents/Info.plist"), info_plist_contents())
-        .expect("falha ao escrever o Info.plist");
+        .unwrap_or_else(|e| fail(format!("falha ao escrever o Info.plist: {e}")));
     install_icon();
     install_binary_atomically(&current_exe);
     register_with_launch_services();
 
-    fs::create_dir_all(logs_dir()).expect("falha ao criar diretório de logs");
+    fs::create_dir_all(logs_dir()).unwrap_or_else(|e| fail(format!("falha ao criar diretório de logs: {e}")));
 
+    // Invariante do próprio path construído acima (sempre tem um diretório
+    // pai), não uma falha de I/O — um panic aqui indicaria um bug real.
     let plist_dir = plist_path()
         .parent()
         .expect("plist path sempre tem diretório pai")
         .to_path_buf();
-    fs::create_dir_all(&plist_dir).expect("falha ao criar diretório do LaunchAgent");
+    fs::create_dir_all(&plist_dir)
+        .unwrap_or_else(|e| fail(format!("falha ao criar diretório do LaunchAgent: {e}")));
 
     fs::write(plist_path(), plist_contents(&installed_binary_path()))
-        .expect("falha ao escrever o plist");
+        .unwrap_or_else(|e| fail(format!("falha ao escrever o plist: {e}")));
 
     link_binary_for_cli_use();
 
@@ -199,8 +213,9 @@ pub fn uninstall() {
     unregister_from_launch_services();
     unlink_binary_for_cli_use();
     let _ = fs::remove_dir_all(install_dir());
+    let _ = fs::remove_dir_all(home_dir().join("Library/Caches/boopaste"));
 
-    println!("boopaste: desinstalado (LaunchAgent, binário e permissões de Acessibilidade/Monitoramento de Entrada removidos)");
+    println!("boopaste: desinstalado (LaunchAgent, binário, cache de imagens e permissões de Acessibilidade/Monitoramento de Entrada removidos)");
 }
 
 /// Copia o binário pro destino via arquivo temporário + `rename` atômico.
@@ -212,15 +227,18 @@ pub fn uninstall() {
 /// arquivo antigo aberto.
 fn install_icon() {
     let resources_dir = bundle_path().join("Contents/Resources");
-    fs::create_dir_all(&resources_dir).expect("falha ao criar Contents/Resources");
-    fs::write(resources_dir.join("AppIcon.icns"), APP_ICON).expect("falha ao escrever o ícone");
+    fs::create_dir_all(&resources_dir)
+        .unwrap_or_else(|e| fail(format!("falha ao criar Contents/Resources: {e}")));
+    fs::write(resources_dir.join("AppIcon.icns"), APP_ICON)
+        .unwrap_or_else(|e| fail(format!("falha ao escrever o ícone: {e}")));
 }
 
 fn install_binary_atomically(source: &std::path::Path) {
     let dest = installed_binary_path();
     let tmp_dest = bundle_macos_dir().join("boopaste.tmp");
-    fs::copy(source, &tmp_dest).expect("falha ao copiar o binário");
-    fs::rename(&tmp_dest, &dest).expect("falha ao mover o binário pro destino final");
+    fs::copy(source, &tmp_dest).unwrap_or_else(|e| fail(format!("falha ao copiar o binário: {e}")));
+    fs::rename(&tmp_dest, &dest)
+        .unwrap_or_else(|e| fail(format!("falha ao mover o binário pro destino final: {e}")));
     sign_bundle();
 }
 
@@ -326,7 +344,7 @@ fn run_launchctl(args: &[&str]) {
     let status = Command::new("launchctl")
         .args(args)
         .status()
-        .expect("falha ao executar launchctl");
+        .unwrap_or_else(|e| fail(format!("falha ao executar launchctl: {e}")));
     if !status.success() {
         eprintln!("launchctl {} falhou", args.join(" "));
     }
