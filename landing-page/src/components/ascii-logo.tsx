@@ -4,14 +4,12 @@ import { useEffect, useMemo, useRef } from "react";
 import { BoopasteSymbol } from "@/components/brand/boopaste-brand";
 
 const BANNER = String.raw`
- _                                _
-| |                              | |
-| |__   ___   ___  _ __  __ _ ___| |_ ___
-| '_ \ / _ \ / _ \| '_ \/ _\` / __| __/ _ \
+ _                                 _
+| |__   ___   ___  _ __   __ _ ___| |_ ___
+| '_ \ / _ \ / _ \| '_ \ / _\` / __| __/ _ \
 | |_) | (_) | (_) | |_) | (_| \__ \ ||  __/
 |_.__/ \___/ \___/| .__/ \__,_|___/\__\___|
-                   | |
-                   |_|
+                  |_|
 `.trim();
 
 const LINES = BANNER.split("\n");

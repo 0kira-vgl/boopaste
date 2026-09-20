@@ -388,34 +388,35 @@ export const docsEn: DocContent = {
     ],
   },
   installation: {
-    tag: "06 / Build & Installation",
-    title: "Compiling from Source",
-    description: "Build boopaste from source on your Apple Silicon Mac in under 30 seconds.",
+    tag: "06 / Installation",
+    title: "Installing boopaste",
+    description: "Three ways to get boopaste running on your Apple Silicon Mac, pick whichever fits.",
     requirementsTitle: "System Requirements",
     requirements: [
       "macOS on Apple Silicon (arm64)",
       "Ghostty or native macOS Terminal.app installed",
-      "Rust & Cargo toolchain (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
+      "Rust & Cargo toolchain, only required if you're building from source (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
     ],
     steps: [
       {
-        title: "1. Clone the repository",
-        command: "git clone https://github.com/0kira-vgl/boopaste.git\ncd boopaste",
-        notes: "Navigates into the source directory.",
+        title: "Option A — Homebrew",
+        command: "brew tap 0kira-vgl/boopaste\nbrew install boopaste\nboopaste init",
+        notes: "Installs the prebuilt binary from the tap, then bundles Boopaste.app and sets up the LaunchAgent.",
       },
       {
-        title: "2. Build release binary",
-        command: "cargo build --release",
-        notes: "Compiles an optimized arm64 binary at target/release/boopaste.",
-      },
-      {
-        title: "3. Initialize bundle and LaunchAgent",
-        command: "./target/release/boopaste init",
+        title: "Option B — curl",
+        command: "curl -fsSL https://boopaste.vercel.app/install.sh | sh",
         notes:
-          "Bundles Boopaste.app into ~/Library/Application Support/boopaste, sets up the LaunchAgent, and links ~/.local/bin/boopaste.",
+          "Downloads the latest GitHub release for your architecture and runs boopaste init automatically. No custom domain yet, so it's served from the Vercel deployment.",
       },
       {
-        title: "4. Turn on the daemon",
+        title: "Option C — Build from source",
+        command:
+          "git clone https://github.com/0kira-vgl/boopaste.git\ncd boopaste\ncargo build --release\n./target/release/boopaste init",
+        notes: "Compiles an optimized arm64 binary and initializes it, all in one go.",
+      },
+      {
+        title: "Turn on the daemon",
         command: "boopaste on",
         notes:
           "Loads the daemon via launchd. Click 'Allow' on the macOS Input Monitoring prompt. Now copy an image and hit ⌘V in Ghostty or Terminal!",
@@ -452,7 +453,7 @@ export const docsEn: DocContent = {
       {
         issue: "5. Clean reset & reinstall",
         solution: "Uninstall completely to reset TCC database flags, then re-init.",
-        code: "boopaste uninstall\n./target/release/boopaste init\nboopaste on",
+        code: "boopaste uninstall\nboopaste init\nboopaste on",
       },
     ],
   },
@@ -739,34 +740,35 @@ export const docsPt: DocContent = {
     ],
   },
   installation: {
-    tag: "06 / Compilação & Instalação",
-    title: "Compilação a partir do Código-Fonte",
-    description: "Compile o boopaste localmente no seu Mac Apple Silicon em menos de 30 segundos.",
+    tag: "06 / Instalação",
+    title: "Instalando o boopaste",
+    description: "Três formas de colocar o boopaste rodando no seu Mac Apple Silicon, escolha a que preferir.",
     requirementsTitle: "Requisitos do Sistema",
     requirements: [
       "macOS em processadores Apple Silicon (arm64)",
       "Ghostty ou Terminal.app nativo do macOS",
-      "Rust & Cargo (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
+      "Rust & Cargo, só necessário se for compilar a partir do código-fonte (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)",
     ],
     steps: [
       {
-        title: "1. Clonar o repositório",
-        command: "git clone https://github.com/0kira-vgl/boopaste.git\ncd boopaste",
-        notes: "Acessa a pasta do código-fonte.",
+        title: "Opção A — Homebrew",
+        command: "brew tap 0kira-vgl/boopaste\nbrew install boopaste\nboopaste init",
+        notes: "Instala o binário pronto direto do tap, monta o Boopaste.app e configura o LaunchAgent.",
       },
       {
-        title: "2. Compilar binário release",
-        command: "cargo build --release",
-        notes: "Gera o executável nativo ultra-otimizado em target/release/boopaste.",
-      },
-      {
-        title: "3. Inicializar bundle e LaunchAgent",
-        command: "./target/release/boopaste init",
+        title: "Opção B — curl",
+        command: "curl -fsSL https://boopaste.vercel.app/install.sh | sh",
         notes:
-          "Instala o Boopaste.app em ~/Library/Application Support/boopaste, configura o LaunchAgent e cria o atalho em ~/.local/bin/boopaste.",
+          "Baixa a última release do GitHub pra sua arquitetura e roda o boopaste init sozinho. Ainda sem domínio próprio, então é servido pelo deploy na Vercel.",
       },
       {
-        title: "4. Ligar o daemon",
+        title: "Opção C — Compilar a partir do código-fonte",
+        command:
+          "git clone https://github.com/0kira-vgl/boopaste.git\ncd boopaste\ncargo build --release\n./target/release/boopaste init",
+        notes: "Compila um binário arm64 otimizado e já inicializa ele, tudo de uma vez.",
+      },
+      {
+        title: "Ligar o daemon",
         command: "boopaste on",
         notes:
           "Inicia o serviço via launchd. Clique em 'Permitir' no alerta de Monitoramento de Entrada. Pronto: copie qualquer print e dê ⌘V no Ghostty ou no Terminal!",
@@ -803,7 +805,7 @@ export const docsPt: DocContent = {
       {
         issue: "5. Reset completo e reinstalação",
         solution: "Remova por completo com o uninstall para resetar as permissões no TCC e reinstale do zero.",
-        code: "boopaste uninstall\n./target/release/boopaste init\nboopaste on",
+        code: "boopaste uninstall\nboopaste init\nboopaste on",
       },
     ],
   },
