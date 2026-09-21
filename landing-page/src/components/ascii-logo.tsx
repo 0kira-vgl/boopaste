@@ -3,21 +3,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import { BoopasteSymbol } from "@/components/brand/boopaste-brand";
 
-const BANNER = String.raw`
- _                                 _
-| |__   ___   ___  _ __   __ _ ___| |_ ___
-| '_ \ / _ \ / _ \| '_ \ / _\` / __| __/ _ \
-| |_) | (_) | (_) | |_) | (_| \__ \ ||  __/
-|_.__/ \___/ \___/| .__/ \__,_|___/\__\___|
-                  |_|
-`
-  // .trim() quebraria o alinhamento: a primeira linha começa com um espaço
-  // significativo (recuo do topo do "b"). Só removemos a quebra de linha
-  // extra que sobra por causa da formatação do template literal.
-  .replace(/^\n/, "")
-  .replace(/\n$/, "");
-
-const LINES = BANNER.split("\n");
+const LINES = [
+  " _                                 _       ",
+  "| |__   ___   ___   ___   __ _ ___| |_ ___ ",
+  "| '_ \\ / _ \\ / _ \\| '_ \\ / _` / __| __/ _ \\",
+  "| |_) | (_) | (_) | |_) | (_| \\__ \\ ||  __/",
+  "|____/ \\___/ \\___/| |__/ \\__,_|___/\\__\\___|",
+  "                  |_|                      ",
+];
 
 // Ruído determinístico (mesmo char sempre bagunça pro mesmo lado) — evita Math.random em cada render.
 function pseudoRandom(seed: number) {
